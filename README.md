@@ -102,7 +102,7 @@ Para ver los logs en vivo: `npm run tail`.
 | `CLAUDE_EFFORT` | `low` | `low` / `medium` / `high`. Más alto = más razonamiento y más costo. |
 | `BOOKING_LINK` | service menu de HED | El único link de agendamiento que puede enviar el agente (respaldo si no logra agendar directo). |
 | `ONLY_TAG` | `ai-agent` | Si tiene valor, solo responde a contactos con ese tag. |
-| `DRY_RUN` | `true` | `true` = deja la respuesta como nota sin enviarla. |
+| `DRY_RUN` | `false` | `true` = deja la respuesta como nota sin enviarla. |
 | `STOP_TAGS` | `stop bot,ai-escalated` | Contactos con estos tags nunca reciben respuesta automática. |
 | `DEBOUNCE_SECONDS` | `20` | Espera tras el último mensaje del cliente antes de responder. |
 | `HUMAN_PAUSE_HOURS` | `12` | Horas de silencio después de que alguien del equipo responde manualmente. |

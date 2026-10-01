@@ -30,7 +30,7 @@ BOOKING_LINK = "https://links.highenddetail.com/widget/service-menu/6a9f2a95377a
 # Set it to "" to answer every SMS/Instagram conversation.
 ONLY_TAG = "ai-agent"
 # "true" = write the proposed reply as a contact note instead of sending it.
-DRY_RUN = "true"
+DRY_RUN = "false"
 # Contacts with any of these tags are never answered by the agent.
 STOP_TAGS = "stop bot,ai-escalated"
 ESCALATION_TAG = "ai-escalated"
