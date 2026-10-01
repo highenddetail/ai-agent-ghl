@@ -126,7 +126,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
   const model = env.CLAUDE_MODEL || "claude-opus-5-5";
   const actions: string[] = [];
   const usage = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
-  let booked = false;
+  const bookedSlots = new Set<string>();
 
   const now = new Date();
   const userPrompt = [
@@ -168,12 +168,14 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
       }
 
       case "book_appointment": {
-        if (booked) return "NOT BOOKED: you already booked one appointment in this reply. Only one booking per reply; ask the customer before booking another.";
         const calendar = getCalendar(String(input.calendar_id));
         if (!calendar) return "NOT BOOKED: unknown calendar_id. Use find_booking_calendar first.";
         const startTime = String(input.start_time);
         const startMs = Date.parse(startTime);
         if (Number.isNaN(startMs)) return "NOT BOOKED: start_time is not a valid ISO date.";
+        const slotKey = `${calendar.id}|${startMs}`;
+        if (bookedSlots.has(slotKey)) return "NOT BOOKED: this exact appointment was already booked in this reply. Do not book it twice.";
+        if (bookedSlots.size >= 3) return "NOT BOOKED: too many bookings in one reply. Confirm with the customer first.";
         const day = startTime.slice(0, 10);
         const open = await slotsForRange(ctx.ghl, calendar.id, day, 1, env.TIMEZONE);
         if (!(open[day] ?? []).some((s) => Date.parse(s) === startMs)) {
@@ -181,7 +183,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
         }
         const endTime = addMinutesKeepingOffset(startTime, calendar.durationMinutes);
         if (!ctx.contact) {
-          booked = true;
+          bookedSlots.add(slotKey);
           actions.push(`[simulation] would book ${calendar.name} at ${startTime}`);
           return `Simulation mode: booking not created. Pretend it succeeded for ${calendar.name}, ${startTime} to ${endTime}.`;
         }
@@ -195,7 +197,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
           title: `${name} - ${calendar.name}`,
           description: `Booked by AI agent (Julia) via ${ctx.channel}. ${String(input.notes ?? "")}`,
         });
-        booked = true;
+        bookedSlots.add(slotKey);
         actions.push(`booked ${calendar.name} at ${startTime} (appointment ${appointment.id})`);
         await ctx.ghl
           .addNote(ctx.contact.id, `AI agent booked: ${calendar.name}, ${startTime}. ${String(input.notes ?? "")}`)
