@@ -1,0 +1,21 @@
+{
+  "name": "hed-ai-agent-ghl",
+  "version": "0.1.0",
+  "private": true,
+  "description": "High End Detail SMS/Instagram sales agent for GoHighLevel, powered by Claude, running on Cloudflare Workers.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "tail": "wrangler tail"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261001.1",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.145.0"
+  }
+}

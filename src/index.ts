@@ -1,0 +1,157 @@
+import { DurableObject } from "cloudflare:workers";
+import { contactName, formatInZone, runAgent } from "./agent";
+import { csv, type Env } from "./env";
+import { GhlClient, type GhlMessage } from "./ghl";
+
+const CHANNELS: Record<string, "SMS" | "IG"> = {
+  TYPE_SMS: "SMS",
+  TYPE_INSTAGRAM: "IG",
+};
+
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const url = new URL(request.url);
+
+    if (url.pathname === "/" || url.pathname === "/health") {
+      return Response.json({ ok: true, service: "hed-ai-agent" });
+    }
+
+    if (!authorized(url, request, env)) return new Response("unauthorized", { status: 401 });
+
+    if (url.pathname === "/webhook/ghl" && request.method === "POST") {
+      const payload = (await request.json().catch(() => ({}))) as Record<string, any>;
+      const contactId = extractContactId(payload);
+      if (!contactId) {
+        console.warn("webhook without contact id", JSON.stringify(payload).slice(0, 500));
+        return Response.json({ ok: false, error: "missing contact_id" }, { status: 400 });
+      }
+      const stub = env.CONVERSATIONS.get(env.CONVERSATIONS.idFromName(contactId));
+      await stub.schedule(contactId);
+      return Response.json({ ok: true, queued: contactId });
+    }
+
+    // Try the agent without GHL side effects:
+    // POST /simulate {"channel":"SMS","messages":[{"from":"customer","text":"..."}]}
+    if (url.pathname === "/simulate" && request.method === "POST") {
+      const body = (await request.json()) as {
+        channel?: "SMS" | "IG";
+        messages: { from: "customer" | "julia"; text: string }[];
+      };
+      const transcript = body.messages
+        .map((m) => `${m.from === "customer" ? "Customer" : "High End Detail"}: ${m.text}`)
+        .join("\n");
+      const result = await runAgent({
+        env,
+        ghl: new GhlClient(env.GHL_TOKEN, env.GHL_LOCATION_ID),
+        channel: body.channel ?? "SMS",
+        transcript,
+      });
+      return Response.json(result);
+    }
+
+    return new Response("not found", { status: 404 });
+  },
+};
+
+function authorized(url: URL, request: Request, env: Env): boolean {
+  if (!env.WEBHOOK_SECRET) return false;
+  const provided = url.searchParams.get("key") ?? request.headers.get("x-webhook-secret");
+  return provided === env.WEBHOOK_SECRET;
+}
+
+/** Accepts GHL workflow webhooks (contact_id / customData) and app-style InboundMessage events (contactId). */
+function extractContactId(p: Record<string, any>): string | undefined {
+  return p.customData?.contact_id ?? p.customData?.contactId ?? p.contact_id ?? p.contactId ?? p.contact?.id ?? undefined;
+}
+
+/**
+ * One instance per contact. Each webhook pushes the alarm back (debounce), and
+ * the alarm handler runs the agent once the customer has stopped typing.
+ * Durable Objects process one event at a time, so a contact never gets two
+ * replies generated concurrently.
+ */
+export class ConversationAgent extends DurableObject<Env> {
+  async schedule(contactId: string): Promise<void> {
+    await this.ctx.storage.put("contactId", contactId);
+    const delay = Number(this.env.DEBOUNCE_SECONDS || "20") * 1000;
+    await this.ctx.storage.setAlarm(Date.now() + delay);
+  }
+
+  async alarm(): Promise<void> {
+    const contactId = await this.ctx.storage.get<string>("contactId");
+    if (!contactId) return;
+    try {
+      await this.handle(contactId);
+    } catch (err) {
+      // Swallow errors so the runtime doesn't retry the alarm and risk a double reply.
+      console.error(`agent failed for contact ${contactId}`, err);
+    }
+  }
+
+  private async handle(contactId: string): Promise<void> {
+    const env = this.env;
+    const ghl = new GhlClient(env.GHL_TOKEN, env.GHL_LOCATION_ID);
+    const log = (msg: string) => console.log(`[${contactId}] ${msg}`);
+
+    const contact = await ghl.getContact(contactId);
+    const tags = (contact.tags ?? []).map((t) => t.toLowerCase());
+    const onlyTag = env.ONLY_TAG?.trim().toLowerCase();
+    if (onlyTag && !tags.includes(onlyTag)) return log(`skip: missing tag "${env.ONLY_TAG}"`);
+    const stopTag = csv(env.STOP_TAGS).find((t) => tags.includes(t.toLowerCase()));
+    if (stopTag) return log(`skip: has stop tag "${stopTag}"`);
+
+    const conversation = await ghl.findConversation(contactId);
+    if (!conversation) return log("skip: no conversation");
+    const recent = await ghl.getMessages(conversation.id, 40);
+    const latest = recent.find(isChatMessage);
+    if (!latest || latest.direction !== "inbound") return log("skip: latest message is not from the customer");
+    const channel = CHANNELS[latest.messageType ?? ""];
+    if (!channel) return log(`skip: channel ${latest.messageType} not handled`);
+
+    const botIds = new Set((await this.ctx.storage.get<string[]>("sentIds")) ?? []);
+    const pauseMs = Number(env.HUMAN_PAUSE_HOURS || "12") * 3600_000;
+    const humanReply = recent.find(
+      (m) => m.direction === "outbound" && !botIds.has(m.id) && (m.source === "app" || m.userId),
+    );
+    if (humanReply && Date.now() - Date.parse(humanReply.dateAdded) < pauseMs) {
+      return log("skip: a team member replied recently");
+    }
+
+    const transcript = renderTranscript(recent, botIds, env.TIMEZONE);
+    const result = await runAgent({ env, ghl, contact, channel, transcript });
+    log(`actions=${JSON.stringify(result.actions)} usage=${JSON.stringify(result.usage)}`);
+    if (!result.reply) return log("no reply needed");
+
+    // Don't send a stale answer if something changed while the model was thinking.
+    const newest = (await ghl.getMessages(conversation.id, 5)).find(isChatMessage);
+    if (newest && newest.id !== latest.id) return log("skip send: conversation moved on while generating");
+
+    if (env.DRY_RUN === "true") {
+      await ghl.addNote(contactId, `[AI draft, not sent] ${result.reply}`);
+      return log(`dry run note: ${result.reply}`);
+    }
+
+    const messageId = await ghl.sendMessage(contactId, channel, result.reply);
+    if (messageId) {
+      botIds.add(messageId);
+      await this.ctx.storage.put("sentIds", [...botIds].slice(-100));
+    }
+    log(`sent ${channel} to ${contactName(contact)}: ${result.reply}`);
+  }
+}
+
+function isChatMessage(m: GhlMessage): boolean {
+  return Boolean(m.body?.trim()) && (m.messageType ?? "").startsWith("TYPE_") && !(m.messageType ?? "").includes("ACTIVITY");
+}
+
+function renderTranscript(newestFirst: GhlMessage[], botIds: Set<string>, timeZone: string): string {
+  return newestFirst
+    .filter(isChatMessage)
+    .reverse()
+    .map((m) => {
+      const who = m.direction === "inbound" ? "Customer" : botIds.has(m.id) ? "Julia (you)" : "High End Detail";
+      const via = CHANNELS[m.messageType ?? ""] ?? m.messageType?.replace("TYPE_", "");
+      return `[${formatInZone(new Date(m.dateAdded), timeZone)} via ${via}] ${who}: ${m.body!.trim()}`;
+    })
+    .join("\n");
+}
