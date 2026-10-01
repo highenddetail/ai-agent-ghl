@@ -168,16 +168,16 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
       }
 
       case "book_appointment": {
-        if (booked) return "An appointment was already booked in this conversation turn. Do not book twice.";
+        if (booked) return "NOT BOOKED: you already booked one appointment in this reply. Only one booking per reply; ask the customer before booking another.";
         const calendar = getCalendar(String(input.calendar_id));
-        if (!calendar) return "Unknown calendar_id. Use find_booking_calendar first.";
+        if (!calendar) return "NOT BOOKED: unknown calendar_id. Use find_booking_calendar first.";
         const startTime = String(input.start_time);
         const startMs = Date.parse(startTime);
-        if (Number.isNaN(startMs)) return "start_time is not a valid ISO date.";
+        if (Number.isNaN(startMs)) return "NOT BOOKED: start_time is not a valid ISO date.";
         const day = startTime.slice(0, 10);
         const open = await slotsForRange(ctx.ghl, calendar.id, day, 1, env.TIMEZONE);
         if (!(open[day] ?? []).some((s) => Date.parse(s) === startMs)) {
-          return "That time is no longer available. Call get_available_slots again and offer other times.";
+          return "NOT BOOKED: that time is not available. Call get_available_slots again and offer other times.";
         }
         const endTime = addMinutesKeepingOffset(startTime, calendar.durationMinutes);
         if (!ctx.contact) {
@@ -279,7 +279,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
           type: "tool_result",
           tool_use_id: tool.id,
           is_error: true,
-          content: `Tool failed: ${err instanceof Error ? err.message : String(err)}. If this was a booking, send the booking link instead.`,
+          content: `${tool.name === "book_appointment" ? "NOT BOOKED. " : ""}Tool failed: ${err instanceof Error ? err.message : String(err)}. If this was a booking, do not tell the customer it is booked; send the booking link instead.`,
         });
       }
     }
