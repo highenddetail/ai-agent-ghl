@@ -78,6 +78,10 @@ export class GhlClient {
     return data.contact;
   }
 
+  async updateContact(contactId: string, fields: { phone?: string }): Promise<void> {
+    await this.request("PUT", `/contacts/${contactId}`, { body: fields });
+  }
+
   async addTags(contactId: string, tags: string[]): Promise<void> {
     await this.request("POST", `/contacts/${contactId}/tags`, { body: { tags } });
   }

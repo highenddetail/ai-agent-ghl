@@ -91,6 +91,20 @@ const TOOLS: Anthropic.Beta.BetaTool[] = [
     },
   },
   {
+    name: "save_contact_phone",
+    description:
+      "Saves the customer's mobile phone number to their contact record. Use on Instagram when the customer gives their number. Returns the normalized number, or an error if it doesn't look like a valid phone number.",
+    strict: true,
+    input_schema: {
+      type: "object",
+      properties: {
+        phone: { type: "string", description: "Phone number exactly as the customer wrote it." },
+      },
+      required: ["phone"],
+      additionalProperties: false,
+    },
+  },
+  {
     name: "mark_buying_intent",
     description:
       "Flags the lead for the team. Call when the customer clearly expresses intent to move forward with a service: agreeing to proceed, asking how to pay, asking when they can bring their vehicle in, confirming they want to book, or similar clear buying signals. Do not call on price questions alone, only on actual intent to advance.",
@@ -128,11 +142,15 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
   const usage = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
   const bookedSlots = new Set<string>();
 
+  let savedPhone = ctx.contact?.phone ?? "";
+  const phoneOnFile = () => Boolean(savedPhone);
+
   const now = new Date();
   const userPrompt = [
     `Current date and time: ${formatInZone(now, env.TIMEZONE)} (${env.TIMEZONE}). Today is ${isoDateInZone(now, env.TIMEZONE)}.`,
     `Channel: ${ctx.channel === "SMS" ? "SMS text message" : "Instagram DM"}`,
     ctx.contact ? `Customer name on file: ${contactName(ctx.contact) || "unknown"}` : "",
+    `Customer phone on file: ${phoneOnFile() ? "yes" : "no"}`,
     "",
     "<conversation>",
     ctx.transcript,
@@ -181,6 +199,9 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
         if (!(open[day] ?? []).some((s) => Date.parse(s) === startMs)) {
           return "NOT BOOKED: that time is not available. Call get_available_slots again and offer other times.";
         }
+        if (ctx.channel === "IG" && !phoneOnFile()) {
+          return "NOT BOOKED: on Instagram you must get the customer's phone number first. Ask for it, save it with save_contact_phone, then book.";
+        }
         const endTime = addMinutesKeepingOffset(startTime, calendar.durationMinutes);
         if (!ctx.contact) {
           bookedSlots.add(slotKey);
@@ -203,6 +224,15 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
           .addNote(ctx.contact.id, `AI agent booked: ${calendar.name}, ${startTime}. ${String(input.notes ?? "")}`)
           .catch((e) => console.error("addNote failed", e));
         return `Booked. Appointment ${appointment.id}: ${calendar.name}, ${startTime} to ${endTime}.`;
+      }
+
+      case "save_contact_phone": {
+        const phone = normalizePhone(String(input.phone));
+        if (!phone) return "Not saved: that doesn't look like a valid phone number. Ask the customer to double-check it.";
+        if (ctx.contact) await ctx.ghl.updateContact(ctx.contact.id, { phone });
+        savedPhone = phone;
+        actions.push(`saved phone ${phone}`);
+        return `Saved ${phone}.`;
       }
 
       case "mark_buying_intent": {
@@ -290,6 +320,15 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
 
   actions.push("gave up after too many tool calls");
   return { actions, usage };
+}
+
+/** US-first normalization to E.164; returns "" when it isn't a plausible number. */
+export function normalizePhone(raw: string): string {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
+  if (raw.trim().startsWith("+") && digits.length >= 11 && digits.length <= 15) return `+${digits}`;
+  return "";
 }
 
 function cleanReply(text: string): string | undefined {
