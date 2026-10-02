@@ -28,9 +28,9 @@ Cliente escribe (SMS / IG)
 
 ## Dashboard en vivo
 
-`https://<tu-worker>.workers.dev/dashboard?key=<DASHBOARD_KEY>` muestra en tiempo real (se actualiza cada 4 s): mensajes de clientes, respuestas de Julia, citas, links de depósito, pagos, escalamientos, mensajes sin respuesta (con el motivo) y errores; además KPIs del día, 7 o 30 días, tiempo de respuesta y costo estimado de la API. Los eventos se guardan 120 días en un Durable Object (`EventLog`).
+`https://<tu-worker>.workers.dev` (la dirección principal) pide una contraseña la primera vez y luego muestra en tiempo real (se actualiza cada 4 s): mensajes de clientes, respuestas de Julia, citas, links de depósito, pagos, escalamientos, mensajes sin respuesta (con el motivo) y errores; además KPIs del día, 7 o 30 días, tiempo de respuesta y costo estimado de la API. Los eventos se guardan 120 días en un Durable Object (`EventLog`).
 
-`DASHBOARD_KEY` es un Secret opcional en Cloudflare, de solo lectura, para compartir el dashboard sin compartir el `WEBHOOK_SECRET`. Si no existe, el dashboard acepta el `WEBHOOK_SECRET`.
+La contraseña es el Secret `DASHBOARD_KEY` en Cloudflare (solo da acceso al panel). Si no existe, se usa el `WEBHOOK_SECRET`. El navegador queda con la sesión abierta 90 días; `/logout` la cierra. Los links viejos con `?key=` siguen funcionando.
 
 ## Depósitos con Square
 

@@ -7,7 +7,7 @@ import { CALENDARS } from "./knowledge";
 import { decodeDepositNote, verifySquareSignature, type DepositNote } from "./square";
 import { bookSlot, formatWhen, money, type DepositState } from "./deposits";
 import { actionKind, estimateCost, eventLog, record, type AgentEvent, type EventKind } from "./events";
-import { dashboardHtml, startOfToday } from "./dashboard";
+import { dashboardHtml, loginHtml, startOfToday } from "./dashboard";
 
 export { EventLog } from "./events";
 import { getCalendar } from "./knowledge";
@@ -21,27 +21,14 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
-    if (url.pathname === "/" || url.pathname === "/health") {
+    if (url.pathname === "/health") {
       return Response.json({ ok: true, service: "hed-ai-agent" });
     }
 
-    // Read-only dashboard. Opened with ?key=DASHBOARD_KEY (or WEBHOOK_SECRET if no separate key is set).
-    if (url.pathname === "/dashboard" || url.pathname === "/api/events") {
-      const key = url.searchParams.get("key") ?? "";
-      const allowed = [env.DASHBOARD_KEY, env.WEBHOOK_SECRET].filter(Boolean);
-      if (!key || !allowed.includes(key)) return new Response("unauthorized", { status: 401 });
-      if (url.pathname === "/dashboard") {
-        const html = dashboardHtml({ locationId: env.GHL_LOCATION_ID, timeZone: env.TIMEZONE, model: env.CLAUDE_MODEL, onlyTag: env.ONLY_TAG });
-        return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
-      }
-      const range = url.searchParams.get("range") ?? "today";
-      const since = range === "30d" ? Date.now() - 30 * 86400_000 : range === "7d" ? Date.now() - 7 * 86400_000 : startOfToday(env.TIMEZONE);
-      const log = eventLog(env);
-      const [events, stats] = await Promise.all([
-        log.list({ afterId: Number(url.searchParams.get("after") ?? 0) || 0, limit: 500 }),
-        log.stats(since),
-      ]);
-      return Response.json({ since, events: events.filter((e) => e.ts >= since), stats }, { headers: { "cache-control": "no-store" } });
+    // Read-only dashboard at the root URL. The password is DASHBOARD_KEY (or WEBHOOK_SECRET if
+    // no separate key is set); after logging in, a cookie keeps the browser signed in.
+    if (["/", "/panel", "/dashboard", "/login", "/logout", "/api/events"].includes(url.pathname)) {
+      return dashboardRoute(request, url, env);
     }
 
     // Square payment notifications are authenticated by their HMAC signature, not ?key=.
@@ -110,6 +97,70 @@ export default {
     return new Response("not found", { status: 404 });
   },
 };
+
+const PANEL_COOKIE = "hed_panel";
+const HTML = { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" };
+
+async function sha256(text: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function panelToken(env: Env): Promise<string[]> {
+  const keys = [env.DASHBOARD_KEY, env.WEBHOOK_SECRET].filter((k): k is string => Boolean(k));
+  return Promise.all(keys.map((k) => sha256(`panel:${k}`)));
+}
+
+function cookieValue(request: Request, name: string): string | undefined {
+  for (const part of (request.headers.get("cookie") ?? "").split(";")) {
+    const [k, ...v] = part.trim().split("=");
+    if (k === name) return v.join("=");
+  }
+  return undefined;
+}
+
+function loginCookie(token: string, maxAge: number): string {
+  return `${PANEL_COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`;
+}
+
+async function dashboardRoute(request: Request, url: URL, env: Env): Promise<Response> {
+  const tokens = await panelToken(env);
+  const keys = [env.DASHBOARD_KEY, env.WEBHOOK_SECRET].filter(Boolean);
+  const signedIn = tokens.includes(cookieValue(request, PANEL_COOKIE) ?? "");
+
+  if (url.pathname === "/logout") {
+    return new Response(null, { status: 302, headers: { location: "/", "set-cookie": loginCookie("", 0) } });
+  }
+  if (url.pathname === "/login" && request.method === "POST") {
+    const form = await request.formData().catch(() => null);
+    const password = String(form?.get("password") ?? "");
+    const i = keys.indexOf(password);
+    if (i < 0) return new Response(loginHtml("Contraseña incorrecta."), { status: 401, headers: HTML });
+    return new Response(null, { status: 302, headers: { location: "/", "set-cookie": loginCookie(tokens[i], 90 * 86400) } });
+  }
+  // Old links with ?key= still work: sign in and drop the key from the address bar.
+  const key = url.searchParams.get("key");
+  if (key && keys.includes(key)) {
+    return new Response(null, { status: 302, headers: { location: "/", "set-cookie": loginCookie(tokens[keys.indexOf(key)], 90 * 86400) } });
+  }
+
+  if (url.pathname === "/api/events") {
+    if (!signedIn) return new Response("unauthorized", { status: 401 });
+    const range = url.searchParams.get("range") ?? "today";
+    const since = range === "30d" ? Date.now() - 30 * 86400_000 : range === "7d" ? Date.now() - 7 * 86400_000 : startOfToday(env.TIMEZONE);
+    const log = eventLog(env);
+    const [events, stats] = await Promise.all([
+      log.list({ afterId: Number(url.searchParams.get("after") ?? 0) || 0, limit: 500 }),
+      log.stats(since),
+    ]);
+    return Response.json({ since, events: events.filter((e) => e.ts >= since), stats }, { headers: { "cache-control": "no-store" } });
+  }
+
+  if (!signedIn) return new Response(loginHtml(""), { headers: HTML });
+  if (url.pathname !== "/") return new Response(null, { status: 302, headers: { location: "/" } });
+  const html = dashboardHtml({ locationId: env.GHL_LOCATION_ID, timeZone: env.TIMEZONE, model: env.CLAUDE_MODEL, onlyTag: env.ONLY_TAG });
+  return new Response(html, { headers: HTML });
+}
 
 function authorized(url: URL, request: Request, env: Env): boolean {
   if (!env.WEBHOOK_SECRET) return false;

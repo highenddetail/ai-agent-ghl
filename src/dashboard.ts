@@ -14,6 +14,42 @@ export function startOfToday(timeZone: string): number {
   return Date.parse(`${day}T00:00:00${offset}`);
 }
 
+export function loginHtml(error: string): string {
+  return `<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Julia Control Room</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Bai+Jamjuree:wght@400;600&display=swap">
+<style>
+:root { --bg: #eef1f6; --surface: #fff; --ink: #130e09; --muted: #5a6170; --line: #d8dee8; --blue: #0033a1; --red: #e1251b; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0c111d; --surface: #141b2b; --ink: #e8ecf4; --muted: #9aa4b6; --line: #273249; --blue: #7aa0ff; --red: #ff6a5f; color-scheme: dark; } }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 "Bai Jamjuree", system-ui, sans-serif; display: grid; place-items: center; padding-inline: 16px; }
+form { width: min(360px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 24px; display: grid; gap: 12px; }
+h1 { margin: 0; font: 800 20px/1.1 "Archivo", "Arial Black", sans-serif; font-stretch: 125%; letter-spacing: .04em; text-transform: uppercase; color: var(--blue); }
+p { margin: 0; color: var(--muted); font-size: 14px; }
+label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+input { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font: 16px inherit; background: var(--bg); color: var(--ink); }
+button { border: 0; border-radius: 999px; padding: 10px; background: var(--blue); color: #fff; font: 600 15px inherit; cursor: pointer; }
+.err { color: var(--red); font-size: 14px; }
+input:focus-visible, button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<form method="post" action="/login">
+  <h1>Julia · Control Room</h1>
+  <p>High End Detail. Entra con la contraseña del panel.</p>
+  ${error ? `<span class="err">${error}</span>` : ""}
+  <label for="password">Contraseña<input id="password" name="password" type="password" autocomplete="current-password" required autofocus></label>
+  <button type="submit">Entrar</button>
+</form>
+</body>
+</html>`;
+}
+
 export function dashboardHtml(opts: { locationId: string; timeZone: string; model: string; onlyTag: string }): string {
   const cfg = JSON.stringify(opts).replace(/</g, "\\u003c");
   return `<!doctype html>
@@ -157,7 +193,7 @@ input[type=search] { border: 1px solid var(--line); border-radius: 10px; padding
 </div>
 <script>
 const CFG = ${cfg};
-const KEY = new URLSearchParams(location.search).get("key") || "";
+
 const LABELS = {
   message_in: "Mensaje del cliente", reply: "Respuesta de Julia", skip: "Sin respuesta", error: "Error",
   buying_intent: "Intención de compra", deposit_link: "Link de depósito", deposit_paid: "Depósito pagado",
@@ -281,8 +317,8 @@ async function poll(reset = false) {
   if (busy) return; busy = true;
   try {
     if (reset) { state.events = []; state.lastId = 0; }
-    const r = await fetch("/api/events?key=" + encodeURIComponent(KEY) + "&after=" + state.lastId + "&range=" + state.range, { cache: "no-store" });
-    if (r.status === 401) throw new Error("La clave del link no es válida. Pide el link correcto del dashboard.");
+    const r = await fetch("/api/events?after=" + state.lastId + "&range=" + state.range, { cache: "no-store", credentials: "same-origin" });
+    if (r.status === 401) { location.href = "/"; return; }
     if (!r.ok) throw new Error("El servidor respondió " + r.status);
     const data = await r.json();
     const newIds = new Set();
