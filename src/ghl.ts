@@ -29,6 +29,16 @@ export interface GhlConversation {
   lastMessageType?: string;
 }
 
+export interface GhlAppointment {
+  id: string;
+  calendarId: string;
+  title?: string;
+  startTime: string;
+  endTime: string;
+  appointmentStatus?: string;
+  deleted?: boolean;
+}
+
 export type FreeSlots = Record<string, { slots: string[] }>;
 
 export class GhlError extends Error {
@@ -80,6 +90,19 @@ export class GhlClient {
 
   async updateContact(contactId: string, fields: { phone?: string }): Promise<void> {
     await this.request("PUT", `/contacts/${contactId}`, { body: fields });
+  }
+
+  /** Times come back as "YYYY-MM-DD HH:mm:ss" in the location's timezone. */
+  async getContactAppointments(contactId: string): Promise<GhlAppointment[]> {
+    const data = await this.request<{ events: GhlAppointment[] }>("GET", `/contacts/${contactId}/appointments`);
+    return data.events ?? [];
+  }
+
+  async updateAppointment(
+    appointmentId: string,
+    fields: { appointmentStatus?: string; startTime?: string; endTime?: string; calendarId?: string },
+  ): Promise<void> {
+    await this.request("PUT", `/calendars/events/appointments/${appointmentId}`, { version: "2021-04-15", body: fields });
   }
 
   async addTags(contactId: string, tags: string[]): Promise<void> {

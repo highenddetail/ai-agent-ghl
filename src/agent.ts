@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { Env } from "./env";
-import type { GhlClient, GhlContact } from "./ghl";
+import type { GhlAppointment, GhlClient, GhlContact } from "./ghl";
 import { getCalendar, getPricing, searchCalendars } from "./knowledge";
 import { buildSystemPrompt } from "./prompt";
 
@@ -121,9 +121,46 @@ const TOOLS: Anthropic.Beta.BetaTool[] = [
     },
   },
   {
+    name: "list_appointments",
+    description:
+      "Lists the customer's upcoming appointments (id, service, start and end in Eastern Time). Call this before cancelling or rescheduling.",
+    strict: true,
+    input_schema: { type: "object", properties: {}, required: [], additionalProperties: false },
+  },
+  {
+    name: "cancel_appointment",
+    description:
+      "Cancels one of the customer's upcoming appointments. Only call after the customer explicitly confirmed they want to cancel that specific appointment.",
+    strict: true,
+    input_schema: {
+      type: "object",
+      properties: {
+        appointment_id: { type: "string", description: "Id from list_appointments." },
+        reason: { type: "string", description: "Short reason the customer gave, for the team." },
+      },
+      required: ["appointment_id", "reason"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "reschedule_appointment",
+    description:
+      "Moves one of the customer's upcoming appointments to a new start time on the same service calendar, keeping its length. new_start_time must be copied exactly from get_available_slots for that appointment's calendar, and the customer must have confirmed it.",
+    strict: true,
+    input_schema: {
+      type: "object",
+      properties: {
+        appointment_id: { type: "string", description: "Id from list_appointments." },
+        new_start_time: { type: "string", description: "ISO 8601 with offset, e.g. 2026-10-05T10:30:00-04:00." },
+      },
+      required: ["appointment_id", "new_start_time"],
+      additionalProperties: false,
+    },
+  },
+  {
     name: "escalate_to_human",
     description:
-      "Hands the conversation to the team and stops automatic replies for this contact. Use for: price negotiation outside what was quoted, upset customers or complaints, requests for a person, cancel/reschedule requests, or technical questions the pricing reference can't answer.",
+      "Hands the conversation to the team and stops automatic replies for this contact. Use for: price negotiation outside what was quoted, upset customers or complaints, requests for a person, or technical questions the pricing reference can't answer.",
     strict: true,
     input_schema: {
       type: "object",
@@ -244,6 +281,69 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
           await ctx.ghl.addNote(ctx.contact.id, `AI agent: buying intent. ${String(input.summary)}`);
         }
         return "Lead flagged for the team. Continue with booking.";
+      }
+
+      case "list_appointments": {
+        if (!ctx.contact) return "Simulation mode: no appointments on file.";
+        const upcoming = await upcomingAppointments(ctx.ghl, ctx.contact.id, env.TIMEZONE);
+        if (upcoming.length === 0) return "The customer has no upcoming appointments.";
+        return JSON.stringify(
+          upcoming.map((a) => ({
+            id: a.id,
+            service: getCalendar(a.calendarId)?.name ?? a.title,
+            calendar_id: a.calendarId,
+            start: a.startIso,
+            end: a.endIso,
+          })),
+        );
+      }
+
+      case "cancel_appointment": {
+        if (!ctx.contact) {
+          actions.push(`[simulation] would cancel ${String(input.appointment_id)}`);
+          return "Simulation mode: cancelled.";
+        }
+        const appt = (await upcomingAppointments(ctx.ghl, ctx.contact.id, env.TIMEZONE)).find(
+          (a) => a.id === String(input.appointment_id),
+        );
+        if (!appt) return "NOT CANCELLED: that appointment id isn't one of this customer's upcoming appointments. Call list_appointments.";
+        await ctx.ghl.updateAppointment(appt.id, { appointmentStatus: "cancelled" });
+        const service = getCalendar(appt.calendarId)?.name ?? appt.title ?? "appointment";
+        actions.push(`cancelled ${service} at ${appt.startIso}`);
+        await ctx.ghl.addTags(ctx.contact.id, ["ai-cancelled"]).catch((e) => console.error("addTags failed", e));
+        await ctx.ghl
+          .addNote(ctx.contact.id, `AI agent cancelled: ${service}, ${appt.startIso}. Reason: ${String(input.reason)}`)
+          .catch((e) => console.error("addNote failed", e));
+        return `Cancelled ${service} on ${appt.startIso}.`;
+      }
+
+      case "reschedule_appointment": {
+        const newStart = String(input.new_start_time);
+        const newStartMs = Date.parse(newStart);
+        if (Number.isNaN(newStartMs)) return "NOT RESCHEDULED: new_start_time is not a valid ISO date.";
+        if (!ctx.contact) {
+          actions.push(`[simulation] would move ${String(input.appointment_id)} to ${newStart}`);
+          return `Simulation mode: rescheduled to ${newStart}.`;
+        }
+        const appt = (await upcomingAppointments(ctx.ghl, ctx.contact.id, env.TIMEZONE)).find(
+          (a) => a.id === String(input.appointment_id),
+        );
+        if (!appt) return "NOT RESCHEDULED: that appointment id isn't one of this customer's upcoming appointments. Call list_appointments.";
+        const day = newStart.slice(0, 10);
+        const open = await slotsForRange(ctx.ghl, appt.calendarId, day, 1, env.TIMEZONE);
+        if (!(open[day] ?? []).some((s) => Date.parse(s) === newStartMs)) {
+          return "NOT RESCHEDULED: that time is not available on this service's calendar. Call get_available_slots with this appointment's calendar_id and offer other times.";
+        }
+        const lengthMin = Math.round((Date.parse(appt.endIso) - Date.parse(appt.startIso)) / 60_000);
+        const newEnd = addMinutesKeepingOffset(newStart, lengthMin);
+        await ctx.ghl.updateAppointment(appt.id, { calendarId: appt.calendarId, startTime: newStart, endTime: newEnd });
+        const service = getCalendar(appt.calendarId)?.name ?? appt.title ?? "appointment";
+        actions.push(`rescheduled ${service} from ${appt.startIso} to ${newStart}`);
+        await ctx.ghl.addTags(ctx.contact.id, ["ai-rescheduled"]).catch((e) => console.error("addTags failed", e));
+        await ctx.ghl
+          .addNote(ctx.contact.id, `AI agent rescheduled ${service}: ${appt.startIso} -> ${newStart}`)
+          .catch((e) => console.error("addNote failed", e));
+        return `Rescheduled. ${service} moved to ${newStart} - ${newEnd}.`;
       }
 
       case "escalate_to_human": {
@@ -368,6 +468,34 @@ function addMinutesKeepingOffset(iso: string, minutes: number): string {
   if (!m) return new Date(ms).toISOString();
   const offsetMin = (m[1] === "-" ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3]));
   return new Date(ms + offsetMin * 60_000).toISOString().slice(0, 19) + m[0];
+}
+
+interface UpcomingAppointment extends GhlAppointment {
+  startIso: string;
+  endIso: string;
+}
+
+async function upcomingAppointments(ghl: GhlClient, contactId: string, timeZone: string): Promise<UpcomingAppointment[]> {
+  const now = Date.now();
+  return (await ghl.getContactAppointments(contactId))
+    .filter((a) => !a.deleted && !/cancel/i.test(a.appointmentStatus ?? ""))
+    .map((a) => ({ ...a, startIso: localToIso(a.startTime, timeZone), endIso: localToIso(a.endTime, timeZone) }))
+    .filter((a) => Date.parse(a.startIso) > now)
+    .sort((a, b) => Date.parse(a.startIso) - Date.parse(b.startIso));
+}
+
+/** "2026-10-03 12:00:00" (wall time in timeZone) -> "2026-10-03T12:00:00-04:00". Already-ISO input passes through. */
+function localToIso(local: string, timeZone: string): string {
+  if (/[T].*([+-]\d{2}:\d{2}|Z)$/.test(local)) return local;
+  const wall = local.replace(" ", "T").slice(0, 19);
+  const guess = new Date(`${wall}Z`);
+  const name =
+    new Intl.DateTimeFormat("en-US", { timeZone, timeZoneName: "shortOffset" })
+      .formatToParts(guess)
+      .find((p) => p.type === "timeZoneName")?.value ?? "GMT-5";
+  const m = /GMT([+-])(\d{1,2})(?::(\d{2}))?/.exec(name);
+  const offset = m ? `${m[1]}${m[2].padStart(2, "0")}:${m[3] ?? "00"}` : "-05:00";
+  return `${wall}${offset}`;
 }
 
 function weekdayOf(isoDate: string): string {

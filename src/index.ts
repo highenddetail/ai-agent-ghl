@@ -189,7 +189,7 @@ export class ConversationAgent extends DurableObject<Env> {
 
     const botIds = new Set((await this.ctx.storage.get<string[]>("sentIds")) ?? []);
     const botBodies = new Set((await this.ctx.storage.get<string[]>("sentBodies")) ?? []);
-    const pauseMs = Number(env.HUMAN_PAUSE_HOURS || "12") * 3600_000;
+    const pauseMs = Number(env.HUMAN_PAUSE_MINUTES || "5") * 60_000;
     // A team member typing in GHL: an outbound chat message (not an activity
     // log entry like "New appointment created") that the agent didn't send.
     const humanReply = recent.find(

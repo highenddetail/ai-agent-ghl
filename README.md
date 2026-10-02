@@ -23,7 +23,7 @@ Cliente escribe (SMS / IG)
 - **Calendarios**: `src/knowledge/calendars.json` (133 calendarios de servicio activos en GHL, con duración y miembro del equipo asignado).
 - **Intención de compra**: cuando el cliente muestra intención real de avanzar, se agrega el tag `ai-buying-intent` y una nota. Puedes crear un workflow en GHL con ese tag para avisarle al equipo.
 - **Escalamiento a humano**: si hay negociación de precio, una queja, el cliente pide hablar con una persona, quiere cancelar o reprogramar, o hace una pregunta técnica que no está en el catálogo, se agrega el tag `ai-escalated` y una nota. El bot deja de responder a ese contacto hasta que quites el tag.
-- **Si un humano responde** manualmente desde GHL, el bot se queda callado en ese contacto por 12 horas (`HUMAN_PAUSE_HOURS`).
+- **Si un humano responde** manualmente desde GHL, el bot se queda callado en ese contacto por 5 minutos (`HUMAN_PAUSE_MINUTES`).
 - El tag `stop bot`, que ya usan, también detiene al agente.
 
 ## Instalación
@@ -105,7 +105,7 @@ Para ver los logs en vivo: `npm run tail`.
 | `DRY_RUN` | `false` | `true` = deja la respuesta como nota sin enviarla. |
 | `STOP_TAGS` | `stop bot,ai-escalated` | Contactos con estos tags nunca reciben respuesta automática. |
 | `DEBOUNCE_SECONDS` | `7` | Espera tras el último mensaje del cliente antes de responder. |
-| `HUMAN_PAUSE_HOURS` | `12` | Horas de silencio después de que alguien del equipo responde manualmente. |
+| `HUMAN_PAUSE_MINUTES` | `5` | Minutos de silencio después de que alguien del equipo responde manualmente. |
 
 ## Costos
 

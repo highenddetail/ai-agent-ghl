@@ -37,8 +37,8 @@ ESCALATION_TAG = "ai-escalated"
 BUYING_INTENT_TAG = "ai-buying-intent"
 # Wait this long after the last customer message before replying (people often send several texts in a row).
 DEBOUNCE_SECONDS = "7"
-# Stay quiet if a team member replied manually within this many hours.
-HUMAN_PAUSE_HOURS = "12"
+# Stay quiet if a team member replied manually within this many minutes.
+HUMAN_PAUSE_MINUTES = "5"
 
 # Secrets (set with `npx wrangler secret put <NAME>`):
 #   ANTHROPIC_API_KEY  - Claude API key

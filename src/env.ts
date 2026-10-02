@@ -16,7 +16,7 @@ export interface Env {
   ESCALATION_TAG: string;
   BUYING_INTENT_TAG: string;
   DEBOUNCE_SECONDS: string;
-  HUMAN_PAUSE_HOURS: string;
+  HUMAN_PAUSE_MINUTES: string;
 }
 
 export function csv(value: string | undefined): string[] {
