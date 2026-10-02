@@ -1,7 +1,9 @@
+import Anthropic from "@anthropic-ai/sdk";
 import { DurableObject } from "cloudflare:workers";
 import { contactName, formatInZone, runAgent } from "./agent";
 import { csv, type Env } from "./env";
-import { GhlClient, type GhlMessage } from "./ghl";
+import { GhlClient, GhlError, type GhlMessage } from "./ghl";
+import { CALENDARS } from "./knowledge";
 
 const CHANNELS: Record<string, "SMS" | "IG"> = {
   TYPE_SMS: "SMS",
@@ -16,7 +18,15 @@ export default {
       return Response.json({ ok: true, service: "hed-ai-agent" });
     }
 
-    if (!authorized(url, request, env)) return new Response("unauthorized", { status: 401 });
+    if (!env.WEBHOOK_SECRET) return new Response("unauthorized: WEBHOOK_SECRET is not set in Cloudflare", { status: 401 });
+    if (!authorized(url, request, env)) return new Response("unauthorized: key does not match WEBHOOK_SECRET", { status: 401 });
+
+    // Open in a browser: /diag?key=...&contact=<GHL contact id>[&run=1]
+    if (url.pathname === "/diag" && request.method === "GET") {
+      return Response.json(await diagnose(env, url.searchParams.get("contact"), url.searchParams.get("run") === "1"), {
+        headers: { "cache-control": "no-store" },
+      });
+    }
 
     if (url.pathname === "/webhook/ghl" && request.method === "POST") {
       const payload = (await request.json().catch(() => ({}))) as Record<string, any>;
@@ -27,6 +37,7 @@ export default {
       }
       const stub = env.CONVERSATIONS.get(env.CONVERSATIONS.idFromName(contactId));
       await stub.schedule(contactId);
+      console.log(`[${contactId}] webhook received, reply scheduled`);
       return Response.json({ ok: true, queued: contactId });
     }
 
@@ -59,6 +70,58 @@ function authorized(url: URL, request: Request, env: Env): boolean {
   return provided === env.WEBHOOK_SECRET;
 }
 
+function describeError(err: unknown): string {
+  if (err instanceof GhlError) return `${err.message}: ${err.body}`;
+  if (err instanceof Anthropic.APIError) return `Claude API ${err.status}: ${err.message}`;
+  return err instanceof Error ? err.message : String(err);
+}
+
+async function diagnose(env: Env, contactId: string | null, run: boolean) {
+  const out: Record<string, unknown> = {
+    secrets: {
+      ANTHROPIC_API_KEY: Boolean(env.ANTHROPIC_API_KEY),
+      GHL_TOKEN: Boolean(env.GHL_TOKEN),
+      WEBHOOK_SECRET: Boolean(env.WEBHOOK_SECRET),
+    },
+    settings: { ONLY_TAG: env.ONLY_TAG, DRY_RUN: env.DRY_RUN, CLAUDE_MODEL: env.CLAUDE_MODEL, STOP_TAGS: env.STOP_TAGS },
+  };
+  const ghl = new GhlClient(env.GHL_TOKEN, env.GHL_LOCATION_ID);
+  try {
+    const now = Date.now();
+    await ghl.getFreeSlots(CALENDARS[0].id, now, now + 2 * 86400_000, env.TIMEZONE);
+    out.ghl = "ok";
+  } catch (err) {
+    out.ghl = describeError(err);
+  }
+  try {
+    const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+    const r = await client.messages.create({
+      model: env.CLAUDE_MODEL || "claude-opus-5-5",
+      max_tokens: 2000,
+      output_config: { effort: "low" },
+      messages: [{ role: "user", content: "Reply with the word OK." }],
+    });
+    out.claude = r.content.some((b) => b.type === "text") ? "ok" : `unexpected stop_reason ${r.stop_reason}`;
+  } catch (err) {
+    out.claude = describeError(err);
+  }
+  if (contactId) {
+    try {
+      const contact = await ghl.getContact(contactId);
+      out.contact = { id: contact.id, tags: contact.tags ?? [], phone: Boolean(contact.phone) };
+    } catch (err) {
+      out.contact = describeError(err);
+    }
+    const stub = env.CONVERSATIONS.get(env.CONVERSATIONS.idFromName(contactId));
+    if (run) {
+      await stub.schedule(contactId);
+      out.run = "reply scheduled; reload this page in ~40 seconds to see lastRun";
+    }
+    out.agent = await stub.status();
+  }
+  return out;
+}
+
 /** Accepts GHL workflow webhooks (contact_id / customData) and app-style InboundMessage events (contactId). */
 function extractContactId(p: Record<string, any>): string | undefined {
   return p.customData?.contact_id ?? p.customData?.contactId ?? p.contact_id ?? p.contactId ?? p.contact?.id ?? undefined;
@@ -73,25 +136,41 @@ function extractContactId(p: Record<string, any>): string | undefined {
 export class ConversationAgent extends DurableObject<Env> {
   async schedule(contactId: string): Promise<void> {
     await this.ctx.storage.put("contactId", contactId);
+    await this.ctx.storage.put("lastWebhookAt", new Date().toISOString());
     const delay = Number(this.env.DEBOUNCE_SECONDS || "20") * 1000;
     await this.ctx.storage.setAlarm(Date.now() + delay);
+  }
+
+  async status() {
+    const [lastWebhookAt, lastRun, alarm] = await Promise.all([
+      this.ctx.storage.get<string>("lastWebhookAt"),
+      this.ctx.storage.get("lastRun"),
+      this.ctx.storage.getAlarm(),
+    ]);
+    return { lastWebhookAt: lastWebhookAt ?? null, pendingReplyAt: alarm ? new Date(alarm).toISOString() : null, lastRun: lastRun ?? null };
   }
 
   async alarm(): Promise<void> {
     const contactId = await this.ctx.storage.get<string>("contactId");
     if (!contactId) return;
+    let outcome: string;
     try {
-      await this.handle(contactId);
+      outcome = await this.handle(contactId);
     } catch (err) {
       // Swallow errors so the runtime doesn't retry the alarm and risk a double reply.
-      console.error(`agent failed for contact ${contactId}`, err);
+      outcome = `error: ${describeError(err)}`;
+      console.error(`[${contactId}] agent failed`, err);
     }
+    await this.ctx.storage.put("lastRun", { at: new Date().toISOString(), outcome });
   }
 
-  private async handle(contactId: string): Promise<void> {
+  private async handle(contactId: string): Promise<string> {
     const env = this.env;
     const ghl = new GhlClient(env.GHL_TOKEN, env.GHL_LOCATION_ID);
-    const log = (msg: string) => console.log(`[${contactId}] ${msg}`);
+    const log = (msg: string) => {
+      console.log(`[${contactId}] ${msg}`);
+      return msg;
+    };
 
     const contact = await ghl.getContact(contactId);
     const tags = (contact.tags ?? []).map((t) => t.toLowerCase());
@@ -136,7 +215,7 @@ export class ConversationAgent extends DurableObject<Env> {
       botIds.add(messageId);
       await this.ctx.storage.put("sentIds", [...botIds].slice(-100));
     }
-    log(`sent ${channel} to ${contactName(contact)}: ${result.reply}`);
+    return log(`sent ${channel} to ${contactName(contact)}: ${result.reply}`);
   }
 }
 
