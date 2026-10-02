@@ -4,7 +4,9 @@ import { contactName, formatInZone, runAgent } from "./agent";
 import { csv, type Env } from "./env";
 import { GhlClient, GhlError, type GhlMessage } from "./ghl";
 import { CALENDARS } from "./knowledge";
-import { decodeDepositNote, verifySquareSignature } from "./square";
+import { decodeDepositNote, verifySquareSignature, type DepositNote } from "./square";
+import { bookSlot, formatWhen, money, type DepositState } from "./deposits";
+import { getCalendar } from "./knowledge";
 
 const CHANNELS: Record<string, "SMS" | "IG"> = {
   TYPE_SMS: "SMS",
@@ -144,7 +146,7 @@ async function diagnose(env: Env, contactId: string | null, run: boolean) {
   return out;
 }
 
-/** A completed deposit payment: tag the contact, leave a note and thank the customer once. */
+/** A completed deposit payment: hand it to the contact's agent, once per payment. */
 async function handleSquareEvent(env: Env, event: Record<string, any>) {
   const payment = event?.data?.object?.payment;
   if (!payment || payment.status !== "COMPLETED") return { ok: true, ignored: "not a completed payment" };
@@ -153,30 +155,14 @@ async function handleSquareEvent(env: Env, event: Record<string, any>) {
 
   const once = env.CONVERSATIONS.get(env.CONVERSATIONS.idFromName(`payment:${payment.id}`));
   if (!(await once.claimOnce())) return { ok: true, ignored: "already processed" };
-
-  const ghl = new GhlClient(env.GHL_TOKEN, env.GHL_LOCATION_ID);
-  const amount = `$${(Number(payment.amount_money?.amount ?? 0) / 100).toFixed(2)}`;
   try {
-    await ghl.addTags(deposit.contactId, [env.DEPOSIT_PAID_TAG]);
+    const agent = env.CONVERSATIONS.get(env.CONVERSATIONS.idFromName(deposit.contactId));
+    const outcome = await agent.depositPaid(String(payment.id), Number(payment.amount_money?.amount ?? 0), deposit);
+    return { ok: true, contactId: deposit.contactId, outcome };
   } catch (err) {
     await once.releaseClaim(); // let Square's retry process it again
     throw err;
   }
-  await ghl.removeTags(deposit.contactId, [env.DEPOSIT_PENDING_TAG]).catch((e) => console.error("removeTags failed", e));
-  await ghl.addNote(
-    deposit.contactId,
-    `Deposit paid: ${amount} via Square (payment ${payment.id}, order ${payment.order_id}). Appointments: ${deposit.appointmentIds.join(", ")}`,
-  );
-
-  const message =
-    deposit.language === "es"
-      ? `Recibimos tu depósito de ${amount}, gracias. Tu cita quedó asegurada. Cualquier cosa me escribes por aquí.`
-      : `Got your ${amount} deposit, thank you. Your appointment is locked in. Text me here if you need anything.`;
-  const contactAgent = env.CONVERSATIONS.get(env.CONVERSATIONS.idFromName(deposit.contactId));
-  const messageId = await ghl.sendMessage(deposit.contactId, deposit.channel, message);
-  await contactAgent.rememberSent(messageId ?? null, message);
-  console.log(`[${deposit.contactId}] deposit ${amount} paid (${payment.id})`);
-  return { ok: true, contactId: deposit.contactId, amount };
 }
 
 /** Accepts GHL workflow webhooks (contact_id / customData) and app-style InboundMessage events (contactId). */
@@ -205,6 +191,72 @@ export class ConversationAgent extends DurableObject<Env> {
     return true;
   }
 
+  /** Square says the deposit is paid: book the held slot(s) and text the customer. */
+  async depositPaid(paymentId: string, amountCents: number, note: DepositNote): Promise<string> {
+    const env = this.env;
+    const ghl = new GhlClient(env.GHL_TOKEN, env.GHL_LOCATION_ID);
+    const contactId = note.contactId;
+    const state = (await this.ctx.storage.get<DepositState>("deposit")) ?? {};
+    const pending = state.pending;
+    const lang = pending?.language ?? note.language;
+    const channel = pending?.channel ?? note.channel;
+    const paid = money(amountCents);
+
+    await ghl.addTags(contactId, [env.DEPOSIT_PAID_TAG]);
+    await ghl.removeTags(contactId, [env.DEPOSIT_PENDING_TAG]).catch((e) => console.error("removeTags failed", e));
+
+    const booked: string[] = [];
+    const missed: string[] = [];
+    if (pending) {
+      const contact = await ghl.getContact(contactId);
+      for (const slot of pending.slots) {
+        const cal = getCalendar(slot.calendarId);
+        if (!cal) continue;
+        const when = formatWhen(slot.startTime, env.TIMEZONE, lang);
+        const result = await bookSlot(
+          ghl,
+          env,
+          contact,
+          cal,
+          slot.startTime,
+          `Booked by AI agent (Julia) after ${paid} deposit (Square payment ${paymentId}). ${slot.notes}`,
+        ).catch((err) => ({ ok: false as const, reason: describeError(err) }));
+        if (result.ok) booked.push(`${cal.name}, ${when}`);
+        else missed.push(`${cal.name}, ${when}`);
+      }
+    }
+
+    let message: string;
+    if (pending && missed.length === 0) {
+      state.pending = undefined;
+      message =
+        lang === "es"
+          ? `Recibimos tu depósito de ${paid}, gracias. Tu cita quedó confirmada: ${booked.join("; ")}. Te esperamos en 11801 SW 144th Ct #5, Miami.`
+          : `Got your ${paid} deposit, thank you. You're booked: ${booked.join("; ")}. See you at 11801 SW 144th Ct #5, Miami.`;
+    } else {
+      // Paid, but nothing held or the time was taken while paying: keep the deposit as credit.
+      state.pending = undefined;
+      state.credit = { amountCents, paymentId, services: missed.join("; ") || "their service", at: new Date().toISOString() };
+      const took = missed.length ? (lang === "es" ? ` El horario de ${missed.join(" y ")} se ocupó mientras se procesaba el pago.` : ` The ${missed.join(" and ")} time was taken while the payment went through.`) : "";
+      const done = booked.length ? (lang === "es" ? ` Ya quedó: ${booked.join("; ")}.` : ` Booked: ${booked.join("; ")}.`) : "";
+      message =
+        lang === "es"
+          ? `Recibimos tu depósito de ${paid}, gracias.${done}${took} ¿Qué otro día y hora te funciona? Tu depósito ya cuenta.`
+          : `Got your ${paid} deposit, thank you.${done}${took} What other day and time works for you? Your deposit is already applied.`;
+    }
+    await this.ctx.storage.put("deposit", state);
+
+    await ghl
+      .addNote(contactId, `Deposit paid: ${paid} via Square (payment ${paymentId}). Booked: ${booked.join("; ") || "none"}. Not booked: ${missed.join("; ") || "none"}.`)
+      .catch((e) => console.error("addNote failed", e));
+    const messageId = await ghl.sendMessage(contactId, channel, message);
+    await this.rememberSent(messageId ?? null, message);
+    const outcome = `deposit ${paid} paid; booked=${booked.length} missed=${missed.length}`;
+    console.log(`[${contactId}] ${outcome}`);
+    await this.ctx.storage.put("lastRun", { at: new Date().toISOString(), outcome });
+    return outcome;
+  }
+
   async releaseClaim(): Promise<void> {
     await this.ctx.storage.delete("claimed");
   }
@@ -225,7 +277,8 @@ export class ConversationAgent extends DurableObject<Env> {
       this.ctx.storage.get("lastRun"),
       this.ctx.storage.getAlarm(),
     ]);
-    return { lastWebhookAt: lastWebhookAt ?? null, pendingReplyAt: alarm ? new Date(alarm).toISOString() : null, lastRun: lastRun ?? null };
+    const deposit = (await this.ctx.storage.get("deposit")) ?? null;
+    return { lastWebhookAt: lastWebhookAt ?? null, pendingReplyAt: alarm ? new Date(alarm).toISOString() : null, lastRun: lastRun ?? null, deposit };
   }
 
   async alarm(): Promise<void> {
@@ -284,7 +337,9 @@ export class ConversationAgent extends DurableObject<Env> {
 
     const transcript = renderTranscript(recent, botIds, env.TIMEZONE);
     const aiStart = Date.now();
-    const result = await runAgent({ env, ghl, contact, channel, transcript });
+    const deposit = (await this.ctx.storage.get<DepositState>("deposit")) ?? {};
+    const result = await runAgent({ env, ghl, contact, channel, transcript, deposit });
+    await this.ctx.storage.put("deposit", result.deposit);
     const aiMs = Date.now() - aiStart;
     log(`actions=${JSON.stringify(result.actions)} usage=${JSON.stringify(result.usage)}`);
     if (!result.reply) return log("no reply needed");

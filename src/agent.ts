@@ -4,6 +4,15 @@ import type { GhlAppointment, GhlClient, GhlContact } from "./ghl";
 import { getCalendar, getPricing, searchCalendars } from "./knowledge";
 import { buildSystemPrompt } from "./prompt";
 import { SquareClient, SquareError, encodeDepositNote } from "./square";
+import {
+  addMinutesKeepingOffset,
+  bookSlot,
+  isSlotOpen,
+  money,
+  slotsForRange,
+  type DepositSlot,
+  type DepositState,
+} from "./deposits";
 
 const MAX_TURNS = 10;
 // Models that accept the server-side refusal fallback (`fallbacks: "default"`).
@@ -17,6 +26,8 @@ export interface AgentContext {
   channel: "SMS" | "IG";
   /** Conversation rendered as plain text, oldest first. */
   transcript: string;
+  /** Deposit link awaiting payment, or a paid deposit still to be booked. */
+  deposit?: DepositState;
 }
 
 export interface AgentResult {
@@ -26,6 +37,8 @@ export interface AgentResult {
   usage: { input: number; output: number; cacheRead: number; cacheWrite: number };
   /** Model calls made for this reply (1 + one per tool round). */
   rounds: number;
+  /** Deposit state after this reply; the caller persists it. */
+  deposit: DepositState;
 }
 
 const TOOLS: Anthropic.Beta.BetaTool[] = [
@@ -124,19 +137,28 @@ const TOOLS: Anthropic.Beta.BetaTool[] = [
   {
     name: "send_deposit_link",
     description:
-      "Creates a Square payment link for the booking deposit (a fixed percentage of the catalog price of the given appointments) and returns the link and amount to include in your reply. Call once, right after the appointments for this visit are booked.",
+      "Creates the Square payment link for the booking deposit (a fixed percentage of the catalog price of the chosen services) for the slot(s) the customer confirmed. The appointment is NOT created now: it is booked automatically when the deposit is paid. Returns the link and amount to include in your reply.",
     strict: true,
     input_schema: {
       type: "object",
       properties: {
-        appointment_ids: {
+        slots: {
           type: "array",
-          items: { type: "string" },
-          description: "Appointment ids from the book_appointment results for this visit.",
+          description: "One entry per service for this visit, with the exact slot the customer confirmed.",
+          items: {
+            type: "object",
+            properties: {
+              calendar_id: { type: "string" },
+              start_time: { type: "string", description: "Copied exactly from get_available_slots." },
+              notes: { type: "string", description: "Vehicle and job details for the team." },
+            },
+            required: ["calendar_id", "start_time", "notes"],
+            additionalProperties: false,
+          },
         },
         language: { type: "string", enum: ["en", "es"], description: "The customer's language." },
       },
-      required: ["appointment_ids", "language"],
+      required: ["slots", "language"],
       additionalProperties: false,
     },
   },
@@ -202,6 +224,8 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
   const bookedSlots = new Set<string>();
 
   let savedPhone = ctx.contact?.phone ?? "";
+  const deposit: DepositState = structuredClone(ctx.deposit ?? {});
+  const depositsOn = Boolean(env.SQUARE_ACCESS_TOKEN);
   const phoneOnFile = () => Boolean(savedPhone);
 
   const now = new Date();
@@ -214,6 +238,8 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
     "<conversation>",
     ctx.transcript,
     "</conversation>",
+    "",
+    depositStatusLine(ctx.deposit, env.TIMEZONE),
     "",
     "Write Julia's next message to the customer (or NO_REPLY).",
   ].join("\n");
@@ -253,36 +279,35 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
         const slotKey = `${calendar.id}|${startMs}`;
         if (bookedSlots.has(slotKey)) return "NOT BOOKED: this exact appointment was already booked in this reply. Do not book it twice.";
         if (bookedSlots.size >= 3) return "NOT BOOKED: too many bookings in one reply. Confirm with the customer first.";
-        const day = startTime.slice(0, 10);
-        const open = await slotsForRange(ctx.ghl, calendar.id, day, 1, env.TIMEZONE);
-        if (!(open[day] ?? []).some((s) => Date.parse(s) === startMs)) {
-          return "NOT BOOKED: that time is not available. Call get_available_slots again and offer other times.";
-        }
         if (ctx.channel === "IG" && !phoneOnFile()) {
           return "NOT BOOKED: on Instagram you must get the customer's phone number first. Ask for it, save it with save_contact_phone, then book.";
         }
-        const endTime = addMinutesKeepingOffset(startTime, calendar.durationMinutes);
+        const usesCredit = Boolean(deposit.credit);
+        if (depositsOn && calendar.priceCents && !usesCredit) {
+          return "NOT BOOKED: this service needs the deposit first. Call send_deposit_link with the slot(s) the customer confirmed; the appointment is booked automatically once they pay.";
+        }
         if (!ctx.contact) {
+          if (!(await isSlotOpen(ctx.ghl, calendar.id, startTime, env.TIMEZONE))) {
+            return "NOT BOOKED: that time is not available. Call get_available_slots again and offer other times.";
+          }
           bookedSlots.add(slotKey);
           actions.push(`[simulation] would book ${calendar.name} at ${startTime}`);
-          return `Simulation mode: booking not created. Pretend it succeeded for ${calendar.name}, ${startTime} to ${endTime}.`;
+          return `Simulation mode: booking not created. Pretend it succeeded for ${calendar.name}, ${startTime}.`;
         }
-        const name = contactName(ctx.contact) || "Customer";
-        const appointment = await ctx.ghl.createAppointment({
-          calendarId: calendar.id,
-          contactId: ctx.contact.id,
+        const credit = usesCredit ? ` Deposit ${money(deposit.credit!.amountCents)} already paid (Square payment ${deposit.credit!.paymentId}).` : "";
+        const booked = await bookSlot(
+          ctx.ghl,
+          env,
+          ctx.contact,
+          calendar,
           startTime,
-          endTime,
-          assignedUserId: calendar.userId,
-          title: `${name} - ${calendar.name}`,
-          description: `Booked by AI agent (Julia) via ${ctx.channel}. ${String(input.notes ?? "")}`,
-        });
+          `Booked by AI agent (Julia) via ${ctx.channel}.${credit} ${String(input.notes ?? "")}`,
+        );
+        if (!booked.ok) return "NOT BOOKED: that time is not available. Call get_available_slots again and offer other times.";
         bookedSlots.add(slotKey);
-        actions.push(`booked ${calendar.name} at ${startTime} (appointment ${appointment.id})`);
-        await ctx.ghl
-          .addNote(ctx.contact.id, `AI agent booked: ${calendar.name}, ${startTime}. ${String(input.notes ?? "")}`)
-          .catch((e) => console.error("addNote failed", e));
-        return `Booked. Appointment ${appointment.id}: ${calendar.name}, ${startTime} to ${endTime}.`;
+        if (usesCredit) deposit.credit = undefined;
+        actions.push(`booked ${calendar.name} at ${startTime} (appointment ${booked.id})`);
+        return `Booked. Appointment ${booked.id}: ${calendar.name}, ${booked.startTime} to ${booked.endTime}.`;
       }
 
       case "save_contact_phone": {
@@ -305,47 +330,73 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
 
       case "send_deposit_link": {
         const pct = Number(env.DEPOSIT_PERCENT || "10");
-        const ids = [...new Set(((input.appointment_ids as string[]) ?? []).map(String))];
         const language = input.language === "es" ? "es" : "en";
-        if (ids.length === 0) return "NO LINK: pass the appointment ids you just booked.";
-        if (!ctx.contact) {
-          actions.push(`[simulation] would send ${pct}% deposit link for ${ids.join(",")}`);
-          return `Simulation mode: deposit link https://square.link/u/SIMULATED (${pct}% deposit).`;
+        const raw = (input.slots as { calendar_id?: unknown; start_time?: unknown; notes?: unknown }[]) ?? [];
+        if (raw.length === 0) return "NO LINK: pass the slot(s) the customer confirmed.";
+        if (raw.length > 3) return "NO LINK: at most 3 services per visit.";
+        if (deposit.credit) return "NO LINK: this customer already paid a deposit. Book the confirmed slot directly with book_appointment.";
+        if (!depositsOn) return "NO LINK: deposits aren't set up. Book directly with book_appointment and don't mention a deposit.";
+        if (ctx.channel === "IG" && !phoneOnFile()) {
+          return "NO LINK: on Instagram you must get the customer's phone number first. Ask for it and save it with save_contact_phone.";
         }
-        if (!env.SQUARE_ACCESS_TOKEN) return "NO LINK: deposits aren't set up yet. Don't mention a deposit.";
-        const upcoming = await upcomingAppointments(ctx.ghl, ctx.contact.id, env.TIMEZONE);
-        const appts = ids.map((id) => upcoming.find((a) => a.id === id));
-        if (appts.some((a) => !a)) return "NO LINK: one of those ids isn't an upcoming appointment of this customer. Use the ids from book_appointment.";
-        const priced = appts.map((a) => ({ appt: a!, cal: getCalendar(a!.calendarId) }));
-        if (priced.some((p) => !p.cal?.priceCents)) {
-          return "NO LINK: at least one of these services has no fixed price (custom quote), so the team will handle the deposit. Don't mention a deposit.";
+        const slots: DepositSlot[] = [];
+        let totalCents = 0;
+        const names: string[] = [];
+        for (const r of raw) {
+          const cal = getCalendar(String(r.calendar_id));
+          if (!cal) return "NO LINK: unknown calendar_id. Use find_booking_calendar first.";
+          if (!cal.priceCents) {
+            return `NO LINK: ${cal.name} has no fixed price (custom quote), so no deposit link. Book it directly with book_appointment and don't mention a deposit.`;
+          }
+          const start = String(r.start_time);
+          if (Number.isNaN(Date.parse(start))) return "NO LINK: start_time is not a valid ISO date.";
+          if (!(await isSlotOpen(ctx.ghl, cal.id, start, env.TIMEZONE))) {
+            return `NO LINK: ${cal.name} at ${start} is no longer available. Call get_available_slots and offer other times.`;
+          }
+          slots.push({ calendarId: cal.id, startTime: start, notes: String(r.notes ?? "") });
+          totalCents += cal.priceCents;
+          names.push(cal.name);
         }
-        const totalCents = priced.reduce((sum, p) => sum + p.cal!.priceCents!, 0);
         const depositCents = Math.round((totalCents * pct) / 100);
-        const services = priced.map((p) => p.cal!.name).join(" + ");
-        const when = formatInZone(new Date(priced[0].appt.startIso), env.TIMEZONE);
+        if (!ctx.contact) {
+          actions.push(`[simulation] would send ${money(depositCents)} deposit link`);
+          return `Simulation mode: deposit link https://square.link/u/SIMULATED, ${money(depositCents)} (${pct}% of ${money(totalCents)}). Not booked until paid.`;
+        }
+        const services = names.join(" + ");
+        const when = formatInZone(new Date(slots[0].startTime), env.TIMEZONE);
         const label = `${language === "es" ? "Depósito" : "Deposit"} ${pct}% - ${services} - ${when}`;
         try {
           const square = new SquareClient(env.SQUARE_ACCESS_TOKEN, env.SQUARE_LOCATION_ID);
           const link = await square.createPaymentLink({
             name: label,
             amountCents: depositCents,
-            note: encodeDepositNote({ contactId: ctx.contact.id, appointmentIds: ids, channel: ctx.channel, language }, label),
-            idempotencyKey: `dep-${[...ids].sort().join("-")}`,
+            note: encodeDepositNote({ contactId: ctx.contact.id, appointmentIds: [], channel: ctx.channel, language }, label),
+            idempotencyKey: `dep-${ctx.contact.id}-${slots.map((x) => `${x.calendarId}${Date.parse(x.startTime) / 60000}`).join("-")}`,
             buyerPhone: savedPhone || undefined,
             buyerEmail: ctx.contact.email || undefined,
           });
-          const amount = `$${(depositCents / 100).toFixed(2)}`;
-          const total = `$${(totalCents / 100).toFixed(2)}`;
-          actions.push(`deposit link ${amount} (${pct}% of ${total}) ${link.url}`);
+          deposit.pending = {
+            slots,
+            amountCents: depositCents,
+            totalCents,
+            url: link.url,
+            orderId: link.orderId,
+            channel: ctx.channel,
+            language,
+            createdAt: new Date().toISOString(),
+          };
+          actions.push(`deposit link ${money(depositCents)} (${pct}% of ${money(totalCents)}) ${link.url}`);
           await ctx.ghl.addTags(ctx.contact.id, [env.DEPOSIT_PENDING_TAG]).catch((e) => console.error("addTags failed", e));
           await ctx.ghl
-            .addNote(ctx.contact.id, `AI agent sent deposit link: ${amount} (${pct}% of ${total}) for ${services}. ${link.url} (Square order ${link.orderId})`)
+            .addNote(
+              ctx.contact.id,
+              `AI agent sent deposit link: ${money(depositCents)} (${pct}% of ${money(totalCents)}) for ${services}, ${when}. Books automatically when paid. ${link.url}`,
+            )
             .catch((e) => console.error("addNote failed", e));
-          return `Deposit link: ${link.url}\nAmount: ${amount} (${pct}% of the ${total} service total). It's non-refundable and goes toward the total.`;
+          return `Deposit link: ${link.url}\nAmount: ${money(depositCents)} (${pct}% of the ${money(totalCents)} service total), non-refundable, goes toward the total.\nThe appointment is NOT booked yet: it is booked automatically the moment the deposit is paid, and the customer gets a text confirming it. Tell them that.`;
         } catch (err) {
           console.error("deposit link failed", err);
-          return `NO LINK: Square returned an error (${err instanceof SquareError ? err.status : "unknown"}). Don't mention a deposit; the team will follow up.`;
+          return `NO LINK: Square returned an error (${err instanceof SquareError ? err.status : "unknown"}). Send the booking link instead and don't book.`;
         }
       }
 
@@ -461,7 +512,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
 
     if (response.stop_reason === "refusal") {
       actions.push("model refused");
-      return { actions, usage, rounds: turn + 1 };
+      return { actions, usage, rounds: turn + 1, deposit };
     }
 
     const toolUses = response.content.filter((b): b is Anthropic.Beta.BetaToolUseBlock => b.type === "tool_use");
@@ -471,7 +522,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
         .map((b) => b.text)
         .join("\n")
         .trim();
-      return { reply: cleanReply(text), actions, usage, rounds: turn + 1 };
+      return { reply: cleanReply(text), actions, usage, rounds: turn + 1, deposit };
     }
 
     messages.push({ role: "assistant", content: response.content });
@@ -494,7 +545,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
   }
 
   actions.push("gave up after too many tool calls");
-  return { actions, usage, rounds: MAX_TURNS };
+  return { actions, usage, rounds: MAX_TURNS, deposit };
 }
 
 /** US-first normalization to E.164; returns "" when it isn't a plausible number. */
@@ -516,32 +567,7 @@ export function contactName(c: GhlContact): string {
   return c.contactName || [c.firstName, c.lastName].filter(Boolean).join(" ");
 }
 
-async function slotsForRange(
-  ghl: GhlClient,
-  calendarId: string,
-  startDate: string,
-  days: number,
-  timezone: string,
-): Promise<Record<string, string[]>> {
-  // Query a padded UTC window, then keep only the requested local dates.
-  const startMs = Date.parse(`${startDate}T00:00:00Z`) - 12 * 3600_000;
-  const endMs = startMs + (days + 1) * 24 * 3600_000;
-  const lastDate = new Date(Date.parse(`${startDate}T00:00:00Z`) + (days - 1) * 24 * 3600_000).toISOString().slice(0, 10);
-  const raw = await ghl.getFreeSlots(calendarId, startMs, endMs, timezone);
-  const out: Record<string, string[]> = {};
-  for (const day of Object.keys(raw).sort()) {
-    if (day >= startDate && day <= lastDate && raw[day].slots.length > 0) out[day] = raw[day].slots;
-  }
-  return out;
-}
 
-function addMinutesKeepingOffset(iso: string, minutes: number): string {
-  const ms = Date.parse(iso) + minutes * 60_000;
-  const m = /([+-])(\d{2}):(\d{2})$/.exec(iso);
-  if (!m) return new Date(ms).toISOString();
-  const offsetMin = (m[1] === "-" ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3]));
-  return new Date(ms + offsetMin * 60_000).toISOString().slice(0, 19) + m[0];
-}
 
 function noticeHours(env: Env): number {
   return Number(env.CHANGE_NOTICE_HOURS || "24");
@@ -582,6 +608,18 @@ function localToIso(local: string, timeZone: string): string {
 
 function weekdayOf(isoDate: string): string {
   return new Date(`${isoDate}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", timeZone: "UTC" });
+}
+
+function depositStatusLine(state: DepositState | undefined, timeZone: string): string {
+  if (state?.credit) {
+    return `Deposit status: PAID ${money(state.credit.amountCents)} for ${state.credit.services}, but the appointment is not booked yet (the time was taken while paying). Book the new time they choose directly with book_appointment; no new deposit.`;
+  }
+  if (state?.pending) {
+    const p = state.pending;
+    const times = p.slots.map((x) => `${getCalendar(x.calendarId)?.name ?? x.calendarId} at ${formatInZone(new Date(x.startTime), timeZone)}`).join(", ");
+    return `Deposit status: link sent, NOT paid yet (${money(p.amountCents)} for ${times}). Link: ${p.url}. The appointment books itself when they pay; if they want a different time, send a new link for the new slot.`;
+  }
+  return "Deposit status: none.";
 }
 
 export function formatInZone(d: Date, timeZone: string): string {

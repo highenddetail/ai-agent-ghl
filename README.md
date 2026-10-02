@@ -28,10 +28,11 @@ Cliente escribe (SMS / IG)
 
 ## Depósitos con Square
 
-Cuando Julia agenda, manda un link de pago de Square por el **10%** (`DEPOSIT_PERCENT`) del precio de catálogo de los servicios agendados. Los precios salen de `priceCents` en `src/knowledge/calendars.json`, tomados del catálogo de Square. Los servicios de cotización personalizada no llevan depósito.
+Primero se paga, después se agenda. Cuando el cliente confirma día y hora, Julia manda un link de pago de Square por el **10%** (`DEPOSIT_PERCENT`) del precio de catálogo de los servicios elegidos. Los precios salen de `priceCents` en `src/knowledge/calendars.json`, tomados del catálogo de Square. Los servicios de cotización personalizada no llevan depósito y se agendan directo.
 
-- Al enviar el link: tag `deposito-pendiente` y una nota con el monto y el link.
-- Cuando el cliente paga, Square avisa a `/webhook/square`. El Worker verifica la firma, cambia el tag a `deposito-pagado`, deja una nota con el ID del pago y le confirma al cliente por el mismo canal.
+- Al enviar el link: tag `deposito-pendiente` y una nota con el monto y el link. La cita todavía no existe.
+- Cuando el cliente paga, Square avisa a `/webhook/square`. El Worker verifica la firma, crea la(s) cita(s) en el horario elegido, cambia el tag a `deposito-pagado`, deja una nota con el ID del pago y le confirma la cita al cliente por el mismo canal.
+- Si ese horario se ocupó mientras pagaba, el depósito queda como crédito: Julia le pide otro horario y lo agenda sin cobrar de nuevo.
 
 Configuración en Square (developer.squareup.com → tu app → Production):
 1. **Credentials → Access token**: guárdalo en Cloudflare como Secret `SQUARE_ACCESS_TOKEN`.
