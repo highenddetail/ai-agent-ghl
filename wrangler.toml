@@ -39,6 +39,8 @@ BUYING_INTENT_TAG = "ai-buying-intent"
 DEBOUNCE_SECONDS = "7"
 # Stay quiet if a team member replied manually within this many minutes.
 HUMAN_PAUSE_MINUTES = "5"
+# Shop policy: cancellations and reschedules need this much notice; closer than this goes to the team.
+CHANGE_NOTICE_HOURS = "24"
 
 # Secrets (set with `npx wrangler secret put <NAME>`):
 #   ANTHROPIC_API_KEY  - Claude API key

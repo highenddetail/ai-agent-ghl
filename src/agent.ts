@@ -294,6 +294,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
             calendar_id: a.calendarId,
             start: a.startIso,
             end: a.endIso,
+            can_change_by_text: !withinNotice(a, env),
           })),
         );
       }
@@ -307,6 +308,9 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
           (a) => a.id === String(input.appointment_id),
         );
         if (!appt) return "NOT CANCELLED: that appointment id isn't one of this customer's upcoming appointments. Call list_appointments.";
+        if (withinNotice(appt, env)) {
+          return `NOT CANCELLED: this appointment starts in less than ${noticeHours(env)} hours, so it can't be changed by text under the shop's policy. Call escalate_to_human and tell the customer the team will contact them.`;
+        }
         await ctx.ghl.updateAppointment(appt.id, { appointmentStatus: "cancelled" });
         const service = getCalendar(appt.calendarId)?.name ?? appt.title ?? "appointment";
         actions.push(`cancelled ${service} at ${appt.startIso}`);
@@ -329,6 +333,9 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
           (a) => a.id === String(input.appointment_id),
         );
         if (!appt) return "NOT RESCHEDULED: that appointment id isn't one of this customer's upcoming appointments. Call list_appointments.";
+        if (withinNotice(appt, env)) {
+          return `NOT RESCHEDULED: this appointment starts in less than ${noticeHours(env)} hours, so it can't be changed by text under the shop's policy. Call escalate_to_human and tell the customer the team will contact them.`;
+        }
         const day = newStart.slice(0, 10);
         const open = await slotsForRange(ctx.ghl, appt.calendarId, day, 1, env.TIMEZONE);
         if (!(open[day] ?? []).some((s) => Date.parse(s) === newStartMs)) {
@@ -468,6 +475,15 @@ function addMinutesKeepingOffset(iso: string, minutes: number): string {
   if (!m) return new Date(ms).toISOString();
   const offsetMin = (m[1] === "-" ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3]));
   return new Date(ms + offsetMin * 60_000).toISOString().slice(0, 19) + m[0];
+}
+
+function noticeHours(env: Env): number {
+  return Number(env.CHANGE_NOTICE_HOURS || "24");
+}
+
+/** Shop policy: changes need this much notice before the appointment starts. */
+function withinNotice(appt: UpcomingAppointment, env: Env): boolean {
+  return Date.parse(appt.startIso) - Date.now() < noticeHours(env) * 3600_000;
 }
 
 interface UpcomingAppointment extends GhlAppointment {

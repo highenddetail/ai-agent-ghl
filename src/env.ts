@@ -17,6 +17,7 @@ export interface Env {
   BUYING_INTENT_TAG: string;
   DEBOUNCE_SECONDS: string;
   HUMAN_PAUSE_MINUTES: string;
+  CHANGE_NOTICE_HOURS: string;
 }
 
 export function csv(value: string | undefined): string[] {

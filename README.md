@@ -106,6 +106,7 @@ Para ver los logs en vivo: `npm run tail`.
 | `STOP_TAGS` | `stop bot,ai-escalated` | Contactos con estos tags nunca reciben respuesta automática. |
 | `DEBOUNCE_SECONDS` | `7` | Espera tras el último mensaje del cliente antes de responder. |
 | `HUMAN_PAUSE_MINUTES` | `5` | Minutos de silencio después de que alguien del equipo responde manualmente. |
+| `CHANGE_NOTICE_HOURS` | `24` | Aviso mínimo para que Julia cancele o reprograme sola; con menos tiempo pasa el caso al equipo. |
 
 ## Costos
 
