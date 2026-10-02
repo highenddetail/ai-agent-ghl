@@ -222,6 +222,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
   const actions: string[] = [];
   const usage = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
   const bookedSlots = new Set<string>();
+  let flaggedThisRun = false;
 
   let savedPhone = ctx.contact?.phone ?? "";
   const deposit: DepositState = structuredClone(ctx.deposit ?? {});
@@ -320,6 +321,9 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
       }
 
       case "mark_buying_intent": {
+        const alreadyFlagged = (ctx.contact?.tags ?? []).some((t) => t.toLowerCase() === env.BUYING_INTENT_TAG.toLowerCase());
+        if (alreadyFlagged || flaggedThisRun) return "Already flagged for the team. Continue with booking.";
+        flaggedThisRun = true;
         actions.push(`buying intent: ${String(input.summary)}`);
         if (ctx.contact) {
           await ctx.ghl.addTags(ctx.contact.id, [env.BUYING_INTENT_TAG]);
