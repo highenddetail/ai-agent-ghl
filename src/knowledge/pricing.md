@@ -74,8 +74,8 @@ a quick vacuuming is performed.
 ### Ceramic Coating — what's included
 
 **Shop details from the owner (these override anything below that conflicts):**
-- 1-2 year coating (all vehicle sizes): a single layer of Opti-Coat Gloss Coat.
-- 5 year coating (all vehicle sizes): a 2-coat system of Opti-Coat Pro. It includes a single-stage paint correction, plus all the paint prep and paint decontamination. So for the 5-year package, the "full paint correction is not included" note means the single-stage correction IS included; a deeper multi-step correction for heavier defects is the separate Heavy Paint Correction Add-On.
+- 1-2 year coating (all vehicle sizes): includes the paint prep, a full wash, a full decontamination, and a single layer of Opti-Coat Gloss Coat. No polishing.
+- 5 year coating (all vehicle sizes): a 2-coat system of Opti-Coat Pro. Includes all the paint prep and decontamination plus a single-stage paint correction, which is basically a light polish. Ideal for new cars or paint in good condition. So for the 5-year package, the "full paint correction is not included" note means this light polish IS included; a deeper multi-step correction for heavier swirls or scratches is the separate Heavy Paint Correction Add-On.
 
 **Ceramic Coating Consultation:** Our ceramic coating consultation offers expert guidance on the benefits and options for protecting your vehicle. We’ll assess your car, discuss your needs, and explain how ceramic coatings shield against UV rays, dirt, and scratches while enhancing shine. You'll receive personalized recommendations and details about the application process and maintenance. Make an informed decision to preserve your car’s appearance and value
 
