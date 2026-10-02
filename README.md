@@ -117,7 +117,7 @@ Para ver los logs en vivo: `npm run tail`.
 | Variable | Default | Descripción |
 |---|---|---|
 | `CLAUDE_MODEL` | `claude-sonnet-5-5` | Modelo de Claude. `claude-opus-5-5` razona más pero cuesta el doble y es más lento. |
-| `CLAUDE_EFFORT` | `low` | `low` / `medium` / `high`. Más alto = más razonamiento y más costo. |
+| `CLAUDE_EFFORT` | `medium` | `low` / `medium` / `high`. Más alto = más razonamiento y más costo. |
 | `BOOKING_LINK` | service menu de HED | El único link de agendamiento que puede enviar el agente (respaldo si no logra agendar directo). |
 | `ONLY_TAG` | `ai-agent` | Si tiene valor, solo responde a contactos con ese tag. |
 | `DRY_RUN` | `false` | `true` = deja la respuesta como nota sin enviarla. |
