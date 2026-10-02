@@ -23,6 +23,8 @@ export interface AgentResult {
   reply?: string;
   actions: string[];
   usage: { input: number; output: number; cacheRead: number; cacheWrite: number };
+  /** Model calls made for this reply (1 + one per tool round). */
+  rounds: number;
 }
 
 const TOOLS: Anthropic.Beta.BetaTool[] = [
@@ -286,7 +288,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
 
     if (response.stop_reason === "refusal") {
       actions.push("model refused");
-      return { actions, usage };
+      return { actions, usage, rounds: turn + 1 };
     }
 
     const toolUses = response.content.filter((b): b is Anthropic.Beta.BetaToolUseBlock => b.type === "tool_use");
@@ -296,7 +298,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
         .map((b) => b.text)
         .join("\n")
         .trim();
-      return { reply: cleanReply(text), actions, usage };
+      return { reply: cleanReply(text), actions, usage, rounds: turn + 1 };
     }
 
     messages.push({ role: "assistant", content: response.content });
@@ -319,7 +321,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
   }
 
   actions.push("gave up after too many tool calls");
-  return { actions, usage };
+  return { actions, usage, rounds: MAX_TURNS };
 }
 
 /** US-first normalization to E.164; returns "" when it isn't a plausible number. */

@@ -188,16 +188,26 @@ export class ConversationAgent extends DurableObject<Env> {
     if (!channel) return log(`skip: channel ${latest.messageType} not handled`);
 
     const botIds = new Set((await this.ctx.storage.get<string[]>("sentIds")) ?? []);
+    const botBodies = new Set((await this.ctx.storage.get<string[]>("sentBodies")) ?? []);
     const pauseMs = Number(env.HUMAN_PAUSE_HOURS || "12") * 3600_000;
+    // A team member typing in GHL: an outbound chat message (not an activity
+    // log entry like "New appointment created") that the agent didn't send.
     const humanReply = recent.find(
-      (m) => m.direction === "outbound" && !botIds.has(m.id) && m.source === "app",
+      (m) =>
+        m.direction === "outbound" &&
+        m.source === "app" &&
+        isChatMessage(m) &&
+        !botIds.has(m.id) &&
+        !botBodies.has(m.body!.trim()),
     );
     if (humanReply && Date.now() - Date.parse(humanReply.dateAdded) < pauseMs) {
       return log("skip: a team member replied recently");
     }
 
     const transcript = renderTranscript(recent, botIds, env.TIMEZONE);
+    const aiStart = Date.now();
     const result = await runAgent({ env, ghl, contact, channel, transcript });
+    const aiMs = Date.now() - aiStart;
     log(`actions=${JSON.stringify(result.actions)} usage=${JSON.stringify(result.usage)}`);
     if (!result.reply) return log("no reply needed");
 
@@ -211,11 +221,17 @@ export class ConversationAgent extends DurableObject<Env> {
     }
 
     const messageId = await ghl.sendMessage(contactId, channel, result.reply);
-    if (messageId) {
-      botIds.add(messageId);
-      await this.ctx.storage.put("sentIds", [...botIds].slice(-100));
-    }
-    return log(`sent ${channel} to ${contactName(contact)}: ${result.reply}`);
+    if (messageId) botIds.add(messageId);
+    botBodies.add(result.reply.trim());
+    await this.ctx.storage.put("sentIds", [...botIds].slice(-100));
+    await this.ctx.storage.put("sentBodies", [...botBodies].slice(-50));
+
+    // Where the seconds went, from the customer's message to our send.
+    const webhookAt = Date.parse((await this.ctx.storage.get<string>("lastWebhookAt")) ?? "");
+    const inboundAt = Date.parse(latest.dateAdded);
+    const secs = (ms: number) => Math.round(ms / 100) / 10;
+    const timing = `ghl_to_webhook=${secs(webhookAt - inboundAt)}s wait=${secs(aiStart - webhookAt)}s ai=${secs(aiMs)}s total=${secs(Date.now() - inboundAt)}s model_calls=${result.rounds}`;
+    return log(`sent ${channel} (${timing}) to ${contactName(contact)}: ${result.reply}`);
   }
 }
 
