@@ -23,7 +23,7 @@ new_sqlite_classes = ["ConversationAgent"]
 [vars]
 GHL_LOCATION_ID = "5VcUBfcIPjOMb1VX5OoS"
 TIMEZONE = "America/New_York"
-CLAUDE_MODEL = "claude-opus-5-5"
+CLAUDE_MODEL = "claude-sonnet-5-5"
 CLAUDE_EFFORT = "low"
 BOOKING_LINK = "https://links.highenddetail.com/widget/service-menu/6a9f2a95377a537eac51a886"
 # Rollout controls. While ONLY_TAG is set, the agent only answers contacts with that tag.

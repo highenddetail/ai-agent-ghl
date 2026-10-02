@@ -98,7 +98,7 @@ Para ver los logs en vivo: `npm run tail`.
 
 | Variable | Default | Descripción |
 |---|---|---|
-| `CLAUDE_MODEL` | `claude-opus-5-5` | Modelo de Claude. `claude-sonnet-5-5` cuesta la mitad. |
+| `CLAUDE_MODEL` | `claude-sonnet-5-5` | Modelo de Claude. `claude-opus-5-5` razona más pero cuesta el doble y es más lento. |
 | `CLAUDE_EFFORT` | `low` | `low` / `medium` / `high`. Más alto = más razonamiento y más costo. |
 | `BOOKING_LINK` | service menu de HED | El único link de agendamiento que puede enviar el agente (respaldo si no logra agendar directo). |
 | `ONLY_TAG` | `ai-agent` | Si tiene valor, solo responde a contactos con ese tag. |
@@ -110,7 +110,7 @@ Para ver los logs en vivo: `npm run tail`.
 ## Costos
 
 - **Cloudflare:** gratis (100,000 requests al día). Si en los logs aparece un error de límite de CPU, el plan Workers Paid cuesta USD 5 al mes.
-- **Claude API:** aproximadamente USD 0.03 a 0.10 por respuesta con Opus 5.5 en effort `low` (depende de cuántas herramientas use: precios, horarios, reserva). Con `claude-sonnet-5-5` es más o menos la mitad.
+- **Claude API:** aproximadamente USD 0.015 a 0.05 por respuesta con Sonnet 5.5 en effort `low` (depende de cuántas herramientas use: precios, horarios, reserva). Con `claude-opus-5-5` es más o menos el doble.
 
 ## Mantenimiento
 
