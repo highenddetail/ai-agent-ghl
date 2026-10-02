@@ -111,7 +111,7 @@ export class ConversationAgent extends DurableObject<Env> {
     const botIds = new Set((await this.ctx.storage.get<string[]>("sentIds")) ?? []);
     const pauseMs = Number(env.HUMAN_PAUSE_HOURS || "12") * 3600_000;
     const humanReply = recent.find(
-      (m) => m.direction === "outbound" && !botIds.has(m.id) && (m.source === "app" || m.userId),
+      (m) => m.direction === "outbound" && !botIds.has(m.id) && m.source === "app",
     );
     if (humanReply && Date.now() - Date.parse(humanReply.dateAdded) < pauseMs) {
       return log("skip: a team member replied recently");
