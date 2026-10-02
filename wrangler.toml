@@ -16,9 +16,17 @@ enabled = true
 name = "CONVERSATIONS"
 class_name = "ConversationAgent"
 
+[[durable_objects.bindings]]
+name = "EVENTS"
+class_name = "EventLog"
+
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["ConversationAgent"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["EventLog"]
 
 [vars]
 GHL_LOCATION_ID = "5VcUBfcIPjOMb1VX5OoS"

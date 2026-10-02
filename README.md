@@ -26,6 +26,12 @@ Cliente escribe (SMS / IG)
 - **Si un humano responde** manualmente desde GHL, el bot se queda callado en ese contacto por 5 minutos (`HUMAN_PAUSE_MINUTES`).
 - El tag `stop bot`, que ya usan, también detiene al agente.
 
+## Dashboard en vivo
+
+`https://<tu-worker>.workers.dev/dashboard?key=<DASHBOARD_KEY>` muestra en tiempo real (se actualiza cada 4 s): mensajes de clientes, respuestas de Julia, citas, links de depósito, pagos, escalamientos, mensajes sin respuesta (con el motivo) y errores; además KPIs del día, 7 o 30 días, tiempo de respuesta y costo estimado de la API. Los eventos se guardan 120 días en un Durable Object (`EventLog`).
+
+`DASHBOARD_KEY` es un Secret opcional en Cloudflare, de solo lectura, para compartir el dashboard sin compartir el `WEBHOOK_SECRET`. Si no existe, el dashboard acepta el `WEBHOOK_SECRET`.
+
 ## Depósitos con Square
 
 Primero se paga, después se agenda. Cuando el cliente confirma día y hora, Julia manda un link de pago de Square por el **10%** (`DEPOSIT_PERCENT`) del precio de catálogo de los servicios elegidos. Los precios salen de `priceCents` en `src/knowledge/calendars.json`, tomados del catálogo de Square. Los servicios de cotización personalizada no llevan depósito y se agendan directo.

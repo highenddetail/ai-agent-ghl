@@ -1,11 +1,14 @@
 export interface Env {
   CONVERSATIONS: DurableObjectNamespace<import("./index").ConversationAgent>;
+  EVENTS: DurableObjectNamespace<import("./events").EventLog>;
 
   ANTHROPIC_API_KEY: string;
   GHL_TOKEN: string;
   WEBHOOK_SECRET: string;
   SQUARE_ACCESS_TOKEN: string;
   SQUARE_WEBHOOK_SIGNATURE_KEY: string;
+  /** Optional: separate read-only key for the dashboard; falls back to WEBHOOK_SECRET. */
+  DASHBOARD_KEY?: string;
 
   GHL_LOCATION_ID: string;
   TIMEZONE: string;

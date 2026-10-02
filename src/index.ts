@@ -6,6 +6,10 @@ import { GhlClient, GhlError, type GhlMessage } from "./ghl";
 import { CALENDARS } from "./knowledge";
 import { decodeDepositNote, verifySquareSignature, type DepositNote } from "./square";
 import { bookSlot, formatWhen, money, type DepositState } from "./deposits";
+import { actionKind, estimateCost, eventLog, record, type AgentEvent, type EventKind } from "./events";
+import { dashboardHtml, startOfToday } from "./dashboard";
+
+export { EventLog } from "./events";
 import { getCalendar } from "./knowledge";
 
 const CHANNELS: Record<string, "SMS" | "IG"> = {
@@ -19,6 +23,25 @@ export default {
 
     if (url.pathname === "/" || url.pathname === "/health") {
       return Response.json({ ok: true, service: "hed-ai-agent" });
+    }
+
+    // Read-only dashboard. Opened with ?key=DASHBOARD_KEY (or WEBHOOK_SECRET if no separate key is set).
+    if (url.pathname === "/dashboard" || url.pathname === "/api/events") {
+      const key = url.searchParams.get("key") ?? "";
+      const allowed = [env.DASHBOARD_KEY, env.WEBHOOK_SECRET].filter(Boolean);
+      if (!key || !allowed.includes(key)) return new Response("unauthorized", { status: 401 });
+      if (url.pathname === "/dashboard") {
+        const html = dashboardHtml({ locationId: env.GHL_LOCATION_ID, timeZone: env.TIMEZONE, model: env.CLAUDE_MODEL, onlyTag: env.ONLY_TAG });
+        return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
+      }
+      const range = url.searchParams.get("range") ?? "today";
+      const since = range === "30d" ? Date.now() - 30 * 86400_000 : range === "7d" ? Date.now() - 7 * 86400_000 : startOfToday(env.TIMEZONE);
+      const log = eventLog(env);
+      const [events, stats] = await Promise.all([
+        log.list({ afterId: Number(url.searchParams.get("after") ?? 0) || 0, limit: 500 }),
+        log.stats(since),
+      ]);
+      return Response.json({ since, events: events.filter((e) => e.ts >= since), stats }, { headers: { "cache-control": "no-store" } });
     }
 
     // Square payment notifications are authenticated by their HMAC signature, not ?key=.
@@ -177,6 +200,14 @@ function extractContactId(p: Record<string, any>): string | undefined {
  * replies generated concurrently.
  */
 export class ConversationAgent extends DurableObject<Env> {
+  /** Events gathered during one run, written to the dashboard log at the end. */
+  private events: AgentEvent[] = [];
+  private who = { name: "", channel: "" };
+
+  private track(contactId: string, kind: EventKind, summary: string, extra: Partial<AgentEvent> = {}) {
+    this.events.push({ ts: Date.now(), contactId, contactName: this.who.name, channel: this.who.channel, kind, summary, ...extra });
+  }
+
   async schedule(contactId: string): Promise<void> {
     await this.ctx.storage.put("contactId", contactId);
     await this.ctx.storage.put("lastWebhookAt", new Date().toISOString());
@@ -252,6 +283,18 @@ export class ConversationAgent extends DurableObject<Env> {
     const messageId = await ghl.sendMessage(contactId, channel, message);
     await this.rememberSent(messageId ?? null, message);
     const outcome = `deposit ${paid} paid; booked=${booked.length} missed=${missed.length}`;
+    let name = contactId;
+    try {
+      const c = await ghl.getContact(contactId);
+      name = contactName(c) || c.phone || contactId;
+    } catch {}
+    const base = { ts: Date.now(), contactId, contactName: name, channel };
+    await record(env, [
+      { ...base, kind: "deposit_paid", summary: `Deposit ${paid} paid (Square ${paymentId})`, amountCents },
+      ...booked.map((b) => ({ ...base, kind: "booking" as const, summary: `booked after deposit: ${b}` })),
+      ...missed.map((m) => ({ ...base, kind: "error" as const, summary: `paid but slot taken: ${m}; deposit kept as credit` })),
+      { ...base, kind: "reply", summary: message },
+    ]);
     console.log(`[${contactId}] ${outcome}`);
     await this.ctx.storage.put("lastRun", { at: new Date().toISOString(), outcome });
     return outcome;
@@ -285,14 +328,18 @@ export class ConversationAgent extends DurableObject<Env> {
     const contactId = await this.ctx.storage.get<string>("contactId");
     if (!contactId) return;
     let outcome: string;
+    this.events = [];
+    this.who = { name: "", channel: "" };
     try {
       outcome = await this.handle(contactId);
     } catch (err) {
       // Swallow errors so the runtime doesn't retry the alarm and risk a double reply.
       outcome = `error: ${describeError(err)}`;
       console.error(`[${contactId}] agent failed`, err);
+      this.track(contactId, "error", describeError(err));
     }
     await this.ctx.storage.put("lastRun", { at: new Date().toISOString(), outcome });
+    await record(this.env, this.events);
   }
 
   private async handle(contactId: string): Promise<string> {
@@ -302,21 +349,38 @@ export class ConversationAgent extends DurableObject<Env> {
       console.log(`[${contactId}] ${msg}`);
       return msg;
     };
+    const skip = (reason: string) => {
+      this.track(contactId, "skip", reason);
+      return log(`skip: ${reason}`);
+    };
 
     const contact = await ghl.getContact(contactId);
+    this.who.name = contactName(contact) || contact.phone || contactId;
     const tags = (contact.tags ?? []).map((t) => t.toLowerCase());
     const onlyTag = env.ONLY_TAG?.trim().toLowerCase();
-    if (onlyTag && !tags.includes(onlyTag)) return log(`skip: missing tag "${env.ONLY_TAG}"`);
+    if (onlyTag && !tags.includes(onlyTag)) return skip(`missing tag "${env.ONLY_TAG}"`);
     const stopTag = csv(env.STOP_TAGS).find((t) => tags.includes(t.toLowerCase()));
-    if (stopTag) return log(`skip: has stop tag "${stopTag}"`);
+    if (stopTag) return skip(`has stop tag "${stopTag}"`);
 
     const conversation = await ghl.findConversation(contactId);
-    if (!conversation) return log("skip: no conversation");
+    if (!conversation) return skip("no conversation");
     const recent = await ghl.getMessages(conversation.id, 40);
     const latest = recent.find(isChatMessage);
-    if (!latest || latest.direction !== "inbound") return log("skip: latest message is not from the customer");
+    if (!latest || latest.direction !== "inbound") return skip("latest message is not from the customer");
     const channel = CHANNELS[latest.messageType ?? ""];
-    if (!channel) return log(`skip: channel ${latest.messageType} not handled`);
+    if (!channel) return skip(`channel ${latest.messageType} not handled`);
+    this.who.channel = channel;
+    if ((await this.ctx.storage.get<string>("lastInboundLogged")) !== latest.id) {
+      await this.ctx.storage.put("lastInboundLogged", latest.id);
+      // Log every customer message since the last reply, oldest first.
+      const unanswered: GhlMessage[] = [];
+      for (const m of recent) {
+        if (!isChatMessage(m)) continue;
+        if (m.direction !== "inbound") break;
+        unanswered.unshift(m);
+      }
+      for (const m of unanswered) this.track(contactId, "message_in", m.body!.trim(), { ts: Date.parse(m.dateAdded) });
+    }
 
     const botIds = new Set((await this.ctx.storage.get<string[]>("sentIds")) ?? []);
     const botBodies = new Set((await this.ctx.storage.get<string[]>("sentBodies")) ?? []);
@@ -332,7 +396,7 @@ export class ConversationAgent extends DurableObject<Env> {
         !botBodies.has(m.body!.trim()),
     );
     if (humanReply && Date.now() - Date.parse(humanReply.dateAdded) < pauseMs) {
-      return log("skip: a team member replied recently");
+      return skip("a team member replied recently");
     }
 
     const transcript = renderTranscript(recent, botIds, env.TIMEZONE);
@@ -342,14 +406,26 @@ export class ConversationAgent extends DurableObject<Env> {
     await this.ctx.storage.put("deposit", result.deposit);
     const aiMs = Date.now() - aiStart;
     log(`actions=${JSON.stringify(result.actions)} usage=${JSON.stringify(result.usage)}`);
-    if (!result.reply) return log("no reply needed");
+    const costUsd = estimateCost(env.CLAUDE_MODEL || "claude-sonnet-5-5", result.usage);
+    for (const action of result.actions) {
+      const kind = actionKind(action);
+      if (kind) this.track(contactId, kind, action);
+    }
+    if (!result.reply) {
+      this.track(contactId, "skip", `no reply needed (${result.actions.join("; ") || "model chose NO_REPLY"})`, { costUsd, calls: result.rounds });
+      return log("no reply needed");
+    }
 
     // Don't send a stale answer if something changed while the model was thinking.
     const newest = (await ghl.getMessages(conversation.id, 5)).find(isChatMessage);
-    if (newest && newest.id !== latest.id) return log("skip send: conversation moved on while generating");
+    if (newest && newest.id !== latest.id) {
+      this.track(contactId, "skip", "conversation moved on while generating; next run answers", { costUsd, calls: result.rounds });
+      return log("skip send: conversation moved on while generating");
+    }
 
     if (env.DRY_RUN === "true") {
       await ghl.addNote(contactId, `[AI draft, not sent] ${result.reply}`);
+      this.track(contactId, "reply", `[draft, not sent] ${result.reply}`, { costUsd, calls: result.rounds, ms: aiMs });
       return log(`dry run note: ${result.reply}`);
     }
 
@@ -363,6 +439,7 @@ export class ConversationAgent extends DurableObject<Env> {
     const webhookAt = Date.parse((await this.ctx.storage.get<string>("lastWebhookAt")) ?? "");
     const inboundAt = Date.parse(latest.dateAdded);
     const secs = (ms: number) => Math.round(ms / 100) / 10;
+    this.track(contactId, "reply", result.reply, { costUsd, calls: result.rounds, ms: Date.now() - Date.parse(latest.dateAdded) });
     const timing = `ghl_to_webhook=${secs(webhookAt - inboundAt)}s wait=${secs(aiStart - webhookAt)}s ai=${secs(aiMs)}s total=${secs(Date.now() - inboundAt)}s model_calls=${result.rounds}`;
     return log(`sent ${channel} (${timing}) to ${contactName(contact)}: ${result.reply}`);
   }
