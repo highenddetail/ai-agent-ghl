@@ -6,6 +6,9 @@ export interface BookingCalendar {
   name: string;
   durationMinutes: number;
   userId: string | null;
+  /** Square catalog price in cents; null for custom-quote or free services. */
+  priceCents: number | null;
+  squareVariationId: string | null;
 }
 
 export const CALENDARS: BookingCalendar[] = calendarsJson;

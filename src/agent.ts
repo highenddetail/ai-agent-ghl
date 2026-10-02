@@ -3,6 +3,7 @@ import type { Env } from "./env";
 import type { GhlAppointment, GhlClient, GhlContact } from "./ghl";
 import { getCalendar, getPricing, searchCalendars } from "./knowledge";
 import { buildSystemPrompt } from "./prompt";
+import { SquareClient, SquareError, encodeDepositNote } from "./square";
 
 const MAX_TURNS = 10;
 // Models that accept the server-side refusal fallback (`fallbacks: "default"`).
@@ -117,6 +118,25 @@ const TOOLS: Anthropic.Beta.BetaTool[] = [
         summary: { type: "string", description: "One line: vehicle, service and option the customer wants, and price quoted." },
       },
       required: ["summary"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "send_deposit_link",
+    description:
+      "Creates a Square payment link for the booking deposit (a fixed percentage of the catalog price of the given appointments) and returns the link and amount to include in your reply. Call once, right after the appointments for this visit are booked.",
+    strict: true,
+    input_schema: {
+      type: "object",
+      properties: {
+        appointment_ids: {
+          type: "array",
+          items: { type: "string" },
+          description: "Appointment ids from the book_appointment results for this visit.",
+        },
+        language: { type: "string", enum: ["en", "es"], description: "The customer's language." },
+      },
+      required: ["appointment_ids", "language"],
       additionalProperties: false,
     },
   },
@@ -281,6 +301,52 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
           await ctx.ghl.addNote(ctx.contact.id, `AI agent: buying intent. ${String(input.summary)}`);
         }
         return "Lead flagged for the team. Continue with booking.";
+      }
+
+      case "send_deposit_link": {
+        const pct = Number(env.DEPOSIT_PERCENT || "10");
+        const ids = [...new Set(((input.appointment_ids as string[]) ?? []).map(String))];
+        const language = input.language === "es" ? "es" : "en";
+        if (ids.length === 0) return "NO LINK: pass the appointment ids you just booked.";
+        if (!ctx.contact) {
+          actions.push(`[simulation] would send ${pct}% deposit link for ${ids.join(",")}`);
+          return `Simulation mode: deposit link https://square.link/u/SIMULATED (${pct}% deposit).`;
+        }
+        if (!env.SQUARE_ACCESS_TOKEN) return "NO LINK: deposits aren't set up yet. Don't mention a deposit.";
+        const upcoming = await upcomingAppointments(ctx.ghl, ctx.contact.id, env.TIMEZONE);
+        const appts = ids.map((id) => upcoming.find((a) => a.id === id));
+        if (appts.some((a) => !a)) return "NO LINK: one of those ids isn't an upcoming appointment of this customer. Use the ids from book_appointment.";
+        const priced = appts.map((a) => ({ appt: a!, cal: getCalendar(a!.calendarId) }));
+        if (priced.some((p) => !p.cal?.priceCents)) {
+          return "NO LINK: at least one of these services has no fixed price (custom quote), so the team will handle the deposit. Don't mention a deposit.";
+        }
+        const totalCents = priced.reduce((sum, p) => sum + p.cal!.priceCents!, 0);
+        const depositCents = Math.round((totalCents * pct) / 100);
+        const services = priced.map((p) => p.cal!.name).join(" + ");
+        const when = formatInZone(new Date(priced[0].appt.startIso), env.TIMEZONE);
+        const label = `${language === "es" ? "Depósito" : "Deposit"} ${pct}% - ${services} - ${when}`;
+        try {
+          const square = new SquareClient(env.SQUARE_ACCESS_TOKEN, env.SQUARE_LOCATION_ID);
+          const link = await square.createPaymentLink({
+            name: label,
+            amountCents: depositCents,
+            note: encodeDepositNote({ contactId: ctx.contact.id, appointmentIds: ids, channel: ctx.channel, language }, label),
+            idempotencyKey: `dep-${[...ids].sort().join("-")}`,
+            buyerPhone: savedPhone || undefined,
+            buyerEmail: ctx.contact.email || undefined,
+          });
+          const amount = `$${(depositCents / 100).toFixed(2)}`;
+          const total = `$${(totalCents / 100).toFixed(2)}`;
+          actions.push(`deposit link ${amount} (${pct}% of ${total}) ${link.url}`);
+          await ctx.ghl.addTags(ctx.contact.id, [env.DEPOSIT_PENDING_TAG]).catch((e) => console.error("addTags failed", e));
+          await ctx.ghl
+            .addNote(ctx.contact.id, `AI agent sent deposit link: ${amount} (${pct}% of ${total}) for ${services}. ${link.url} (Square order ${link.orderId})`)
+            .catch((e) => console.error("addNote failed", e));
+          return `Deposit link: ${link.url}\nAmount: ${amount} (${pct}% of the ${total} service total). It's non-refundable and goes toward the total.`;
+        } catch (err) {
+          console.error("deposit link failed", err);
+          return `NO LINK: Square returned an error (${err instanceof SquareError ? err.status : "unknown"}). Don't mention a deposit; the team will follow up.`;
+        }
       }
 
       case "list_appointments": {

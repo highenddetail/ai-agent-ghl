@@ -4,6 +4,7 @@ import { contactName, formatInZone, runAgent } from "./agent";
 import { csv, type Env } from "./env";
 import { GhlClient, GhlError, type GhlMessage } from "./ghl";
 import { CALENDARS } from "./knowledge";
+import { decodeDepositNote, verifySquareSignature } from "./square";
 
 const CHANNELS: Record<string, "SMS" | "IG"> = {
   TYPE_SMS: "SMS",
@@ -16,6 +17,27 @@ export default {
 
     if (url.pathname === "/" || url.pathname === "/health") {
       return Response.json({ ok: true, service: "hed-ai-agent" });
+    }
+
+    // Square payment notifications are authenticated by their HMAC signature, not ?key=.
+    if (url.pathname === "/webhook/square" && request.method === "POST") {
+      const raw = await request.text();
+      const ok = await verifySquareSignature(
+        raw,
+        request.headers.get("x-square-hmacsha256-signature"),
+        url.origin + url.pathname,
+        env.SQUARE_WEBHOOK_SIGNATURE_KEY,
+      );
+      if (!ok) {
+        console.warn("square webhook: bad signature");
+        return new Response("invalid signature", { status: 401 });
+      }
+      try {
+        return Response.json(await handleSquareEvent(env, JSON.parse(raw)));
+      } catch (err) {
+        console.error("square webhook failed", err);
+        return Response.json({ ok: false, error: describeError(err) }, { status: 500 });
+      }
     }
 
     if (!env.WEBHOOK_SECRET) return new Response("unauthorized: WEBHOOK_SECRET is not set in Cloudflare", { status: 401 });
@@ -122,6 +144,41 @@ async function diagnose(env: Env, contactId: string | null, run: boolean) {
   return out;
 }
 
+/** A completed deposit payment: tag the contact, leave a note and thank the customer once. */
+async function handleSquareEvent(env: Env, event: Record<string, any>) {
+  const payment = event?.data?.object?.payment;
+  if (!payment || payment.status !== "COMPLETED") return { ok: true, ignored: "not a completed payment" };
+  const deposit = decodeDepositNote(payment.note);
+  if (!deposit) return { ok: true, ignored: "not an AI deposit" };
+
+  const once = env.CONVERSATIONS.get(env.CONVERSATIONS.idFromName(`payment:${payment.id}`));
+  if (!(await once.claimOnce())) return { ok: true, ignored: "already processed" };
+
+  const ghl = new GhlClient(env.GHL_TOKEN, env.GHL_LOCATION_ID);
+  const amount = `$${(Number(payment.amount_money?.amount ?? 0) / 100).toFixed(2)}`;
+  try {
+    await ghl.addTags(deposit.contactId, [env.DEPOSIT_PAID_TAG]);
+  } catch (err) {
+    await once.releaseClaim(); // let Square's retry process it again
+    throw err;
+  }
+  await ghl.removeTags(deposit.contactId, [env.DEPOSIT_PENDING_TAG]).catch((e) => console.error("removeTags failed", e));
+  await ghl.addNote(
+    deposit.contactId,
+    `Deposit paid: ${amount} via Square (payment ${payment.id}, order ${payment.order_id}). Appointments: ${deposit.appointmentIds.join(", ")}`,
+  );
+
+  const message =
+    deposit.language === "es"
+      ? `Recibimos tu depósito de ${amount}, gracias. Tu cita quedó asegurada. Cualquier cosa me escribes por aquí.`
+      : `Got your ${amount} deposit, thank you. Your appointment is locked in. Text me here if you need anything.`;
+  const contactAgent = env.CONVERSATIONS.get(env.CONVERSATIONS.idFromName(deposit.contactId));
+  const messageId = await ghl.sendMessage(deposit.contactId, deposit.channel, message);
+  await contactAgent.rememberSent(messageId ?? null, message);
+  console.log(`[${deposit.contactId}] deposit ${amount} paid (${payment.id})`);
+  return { ok: true, contactId: deposit.contactId, amount };
+}
+
 /** Accepts GHL workflow webhooks (contact_id / customData) and app-style InboundMessage events (contactId). */
 function extractContactId(p: Record<string, any>): string | undefined {
   return p.customData?.contact_id ?? p.customData?.contactId ?? p.contact_id ?? p.contactId ?? p.contact?.id ?? undefined;
@@ -139,6 +196,27 @@ export class ConversationAgent extends DurableObject<Env> {
     await this.ctx.storage.put("lastWebhookAt", new Date().toISOString());
     const delay = Number(this.env.DEBOUNCE_SECONDS || "20") * 1000;
     await this.ctx.storage.setAlarm(Date.now() + delay);
+  }
+
+  /** True the first time it's called on this object; used to process each Square payment once. */
+  async claimOnce(): Promise<boolean> {
+    if (await this.ctx.storage.get<boolean>("claimed")) return false;
+    await this.ctx.storage.put("claimed", true);
+    return true;
+  }
+
+  async releaseClaim(): Promise<void> {
+    await this.ctx.storage.delete("claimed");
+  }
+
+  /** Remember a message sent on the agent's behalf so it isn't mistaken for a team member. */
+  async rememberSent(messageId: string | null, body: string): Promise<void> {
+    const ids = (await this.ctx.storage.get<string[]>("sentIds")) ?? [];
+    const bodies = (await this.ctx.storage.get<string[]>("sentBodies")) ?? [];
+    if (messageId) ids.push(messageId);
+    bodies.push(body.trim());
+    await this.ctx.storage.put("sentIds", ids.slice(-100));
+    await this.ctx.storage.put("sentBodies", bodies.slice(-50));
   }
 
   async status() {

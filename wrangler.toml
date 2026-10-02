@@ -41,8 +41,15 @@ DEBOUNCE_SECONDS = "7"
 HUMAN_PAUSE_MINUTES = "5"
 # Shop policy: cancellations and reschedules need this much notice; closer than this goes to the team.
 CHANGE_NOTICE_HOURS = "24"
+# Square deposit links: percentage of the booked services' catalog price.
+SQUARE_LOCATION_ID = "032SR1A1XRP3E"
+DEPOSIT_PERCENT = "10"
+DEPOSIT_PENDING_TAG = "deposito-pendiente"
+DEPOSIT_PAID_TAG = "deposito-pagado"
 
 # Secrets (set with `npx wrangler secret put <NAME>`):
 #   ANTHROPIC_API_KEY  - Claude API key
 #   GHL_TOKEN          - GoHighLevel Private Integration token
 #   WEBHOOK_SECRET     - shared secret appended to the webhook URL as ?key=...
+#   SQUARE_ACCESS_TOKEN          - Square production access token (payment links)
+#   SQUARE_WEBHOOK_SIGNATURE_KEY - signature key of the Square webhook subscription (payment.updated)

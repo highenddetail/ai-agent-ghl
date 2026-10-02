@@ -3,798 +3,1064 @@
     "id": "uxKqNYvQZRWYvKh646j9",
     "name": "AIR80 Windshield",
     "durationMinutes": 45,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 29999,
+    "squareVariationId": "HADZK663Q5SV6UVE3JKQKMCS"
   },
   {
     "id": "zYT9sBaCv9INy39B5RhD",
     "name": "Back Window Removal",
     "durationMinutes": 30,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 10000,
+    "squareVariationId": "PQZP77FN46RL4YDYMV74LSYK"
   },
   {
     "id": "3LUXYVdjQrDVQR0mWqRV",
     "name": "Beeds Premium Ceramic Paint Treatment",
     "durationMinutes": 60,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 7999,
+    "squareVariationId": null
   },
   {
     "id": "NiNavGeljWx7elDUdt6H",
     "name": "Ceramic Coating Consultation",
     "durationMinutes": 60,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": null,
+    "squareVariationId": null
   },
   {
     "id": "2MQUvuI6muczkgFDpXmA",
     "name": "Ceramic Coating For Coupes (2 door cars) 1-2 years",
     "durationMinutes": 360,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 74999,
+    "squareVariationId": "IYBTOPJXIV5PSXF53N73CP2D"
   },
   {
     "id": "EuLTTDjDD2yube5nL5f7",
     "name": "Ceramic Coating For Coupes (2 door cars) 5 years",
     "durationMinutes": 480,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 129999,
+    "squareVariationId": "JKXBV6KS4JVB3OUPOGPQU6N7"
   },
   {
     "id": "NATfZhZvq5KqskemSTx8",
     "name": "Ceramic Coating For Interior (Coupes)",
     "durationMinutes": 330,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 57999,
+    "squareVariationId": "PHHNBJ74KNNS5A77WIMKJ2UR"
   },
   {
     "id": "yOskmx6EiTVBdl12395Y",
     "name": "Ceramic Coating For Interior (Sedans)",
     "durationMinutes": 330,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 57999,
+    "squareVariationId": "JLAEJ7DU2TI3XM46GQ2YXPLK"
   },
   {
     "id": "yOqCwQDGrZfhrrfCdpN0",
     "name": "Ceramic Coating For interiors (Trucks & Suv's)",
     "durationMinutes": 390,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 67999,
+    "squareVariationId": "WBF2O5PWG4JZO2DOTSXMQN6M"
   },
   {
     "id": "blwVd1MyYoyOq5uO4EdS",
     "name": "Ceramic Coating For Sedans (4 door cars) 1-2 years",
     "durationMinutes": 420,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 89999,
+    "squareVariationId": "TZE5J2KDF27XKXPZOTQ63TDL"
   },
   {
     "id": "j1df1PGKnBAmgPrY7AE2",
     "name": "Ceramic Coating For Sedans (4 door cars) 5 years",
     "durationMinutes": 480,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 149999,
+    "squareVariationId": "KMYQ6CFYB2TVZJS56STPE4YP"
   },
   {
     "id": "aTfUxOmc0YH7FavU8A2R",
     "name": "Ceramic Coating For Trucks & Suv's 1-2 years",
     "durationMinutes": 480,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 109999,
+    "squareVariationId": "K3G2IS6NVVBQIS5IQEMFKKRC"
   },
   {
     "id": "TZA7ePnRCDmi9BScxGlf",
     "name": "Ceramic Coating For Trucks & Suv's 5 years",
     "durationMinutes": 480,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 179999,
+    "squareVariationId": "Y22LXMJG2YBH5SYQWLG27CSB"
   },
   {
     "id": "TGJitAFwaawDcat440Xj",
     "name": "Ceramic Coating Two Week Check Up",
     "durationMinutes": 60,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": null,
+    "squareVariationId": null
   },
   {
     "id": "Ghwq9ChnyeP2OyoxuusN",
     "name": "Classic (Good) - 2 Doors + Back Window (Coupe)",
     "durationMinutes": 90,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 30999,
+    "squareVariationId": "3PW354HW5A4GDL2GWY4WKEFO"
   },
   {
     "id": "ouf7W2W5z05AoeTOXGl8",
     "name": "Classic (Good) - 4 Doors + Back Window (Sedan)",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 43999,
+    "squareVariationId": "DOVYNW7BBD3DDLXFAIEMSXJT"
   },
   {
     "id": "retDSTwz2dC7uMzQgYFW",
     "name": "Classic (Good) - 4 Doors + Back Window (Truck/SUV)",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 44999,
+    "squareVariationId": "ICPX2LRYY7Y5JWDJHYBQDRY5"
   },
   {
     "id": "HCB4lFc2sla1lOPs2oqE",
     "name": "Classic (Good) - Full Vehicle (XL SUV/Van)",
     "durationMinutes": 150,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 49999,
+    "squareVariationId": "3HOZYJT5MZJ7Z4INUQ7OQOO4"
   },
   {
     "id": "9e9jsCYMHae0TmAveQdd",
     "name": "Classic (Good) Color Match - Carbon Window Film",
     "durationMinutes": 30,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 18000,
+    "squareVariationId": "2XJCESF4VNU2CKCZD2LBVS43"
   },
   {
     "id": "lS3cAieRb3NgME1Y9JJU",
     "name": "Classic (Good) Panoramic Sunroof",
     "durationMinutes": 45,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 19999,
+    "squareVariationId": "4NYIZGOKSXYIXQ6D2HAM7P4K"
   },
   {
     "id": "ZCtWIpmmBdzCq96kUlK8",
     "name": "Classic (Good) Sunroof (Small/Non-Panoramic)",
     "durationMinutes": 30,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 14999,
+    "squareVariationId": "4WS5BKCRR423SUGGTPYBNOIS"
   },
   {
     "id": "KQh1AdhUDiEaxedTO0Sz",
     "name": "CTX (Better) - 2 Doors + Back Window (Coupe)",
     "durationMinutes": 90,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 35999,
+    "squareVariationId": "BWK2OK4YLBDXXIUKIYQIJSI5"
   },
   {
     "id": "REDxFiMSURCP32i4iN6h",
     "name": "CTX (Better) - 4 Doors + Back Window (Sedan)",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 49999,
+    "squareVariationId": "H6NU2535EVBBDTBSVYV3NI33"
   },
   {
     "id": "HXDjHo64skdgnlphnuSs",
     "name": "CTX (Better) - 4 Doors + Back Window (Truck/SUV)",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 49999,
+    "squareVariationId": "4Y7R4HEAHZMNPIPW6KSRWEWO"
   },
   {
     "id": "dRQ1EZmxk8KiwfE8f0Wv",
     "name": "CTX (Better) - Full Vehicle (XL SUV/Van)",
     "durationMinutes": 150,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 59999,
+    "squareVariationId": "Z5LLCBLMUJD6BMV7PQUYYRQY"
   },
   {
     "id": "7wNFzFaGYamQ7nVTJeGP",
     "name": "CTX (Better) Ceramic Series Color Match 2 Front Windows",
     "durationMinutes": 30,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 21500,
+    "squareVariationId": "SRKGGEAUX73KIAMUI4E5E2WE"
   },
   {
     "id": "SWXFOq1H22sSFOmysfY3",
     "name": "CTX (Better) Panoramic Sunroof",
     "durationMinutes": 45,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 25999,
+    "squareVariationId": "AMWLKXN2WE7CRKIXKZ6ZRDDK"
   },
   {
     "id": "mnwOls1RCrSShdUAivoF",
     "name": "CTX (Better) Sunroof (Small/Non-Panoramic)",
     "durationMinutes": 30,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 18999,
+    "squareVariationId": "IJWGDLUNGNA7ZQR34UKMXRDE"
   },
   {
     "id": "X9aox79c4KdrzUQhB6SN",
     "name": "CTX (Better) Windshield",
     "durationMinutes": 45,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 25999,
+    "squareVariationId": "LZ2UVTSRJYJTU3KY77D6JJDQ"
   },
   {
     "id": "Yywmf2Oqf5wEN0HoOv4k",
     "name": "Difficult Removal Surcharge",
     "durationMinutes": 45,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 6999,
+    "squareVariationId": "V6ZIPJAC6GHH5HPTO6EBWXZQ"
   },
   {
     "id": "t9CaS8lUvG17N1XYv9h8",
     "name": "Engine Bay Clean (Basic Cleaning)",
     "durationMinutes": 30,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 4999,
+    "squareVariationId": "O7D2JOURGF6FXBTZLG4W5YK4"
   },
   {
     "id": "qTKGVh4lwl62ER0eSmri",
     "name": "Engine Bay Clean (Heavy Cleaning)",
     "durationMinutes": 60,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 9999,
+    "squareVariationId": "QSV3MYKYU5MTQ3H4QWIYNG2Y"
   },
   {
     "id": "B6xaHPKjcUVtW0Aph99N",
     "name": "Full Front End PPF - Coupe (Extensive)",
     "durationMinutes": 360,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 220000,
+    "squareVariationId": "7CWXPZDLKGYWLENAIS6ILJYP"
   },
   {
     "id": "rtnbh3pGr3j0HaRbdZtW",
     "name": "Full Front End PPF - Coupe (Standard)",
     "durationMinutes": 300,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 180000,
+    "squareVariationId": "OKISYP7A6YY4GXMD6VE5D3EL"
   },
   {
     "id": "fHhwJXhUmsspMe9DaQwe",
     "name": "Full Front End PPF - Sedan (Extensive)",
     "durationMinutes": 360,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 230000,
+    "squareVariationId": "YVHGP7LA6WLNZFKJKWGPNYLP"
   },
   {
     "id": "QQ66V1LJRhhPACIPSZ2k",
     "name": "Full Front End PPF - Sedan (Standard)",
     "durationMinutes": 300,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 200000,
+    "squareVariationId": "3B2F62IMIVWQK3THXDUCU2H6"
   },
   {
     "id": "Ij1PV2kfgX96cyTgNoxk",
     "name": "Full Front End PPF - Truck/SUV (Extensive)",
     "durationMinutes": 420,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 300000,
+    "squareVariationId": "QW4NAYQTGF7FKHGWUBAIGK2I"
   },
   {
     "id": "3SCgBFXcRGr0x40HqRol",
     "name": "Full Front End PPF - Truck/SUV (Standard)",
     "durationMinutes": 360,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 250000,
+    "squareVariationId": "RHVVQO6FNPXXOJXQQ6EQXWJ3"
   },
   {
     "id": "46C6dujtmEsSYXTvpDgF",
     "name": "Full Front End PPF - XL SUV/Van (Extensive)",
     "durationMinutes": 480,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 320000,
+    "squareVariationId": "TTD7N6NWLZTQ3DA7RUQGUGC7"
   },
   {
     "id": "mKRwwFSbHOVsBSWSn0Da",
     "name": "Full Front End PPF - XL SUV/Van (Standard)",
     "durationMinutes": 420,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 250000,
+    "squareVariationId": "7CWR3PQKTTRHV4C4AQSZCQDZ"
   },
   {
     "id": "NVrkhZLxBmggdKVc1RWp",
     "name": "Full Vehicle Removal - Coupe/Sedan",
     "durationMinutes": 90,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 14999,
+    "squareVariationId": "BRBNKUVTZ7A7ONNZJRU2U6SY"
   },
   {
     "id": "z7ygFzKHOB4r7epOGmNa",
     "name": "Full Vehicle Removal - Truck/SUV",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 19999,
+    "squareVariationId": "TBZANBZ5VGNCNZLAV7A6MOVR"
   },
   {
     "id": "jZbVgKMnCkPvqN7NFdzK",
     "name": "Glass Ceramic Coating (Normal)",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 24999,
+    "squareVariationId": "DC36WVT5N6YQDLKNWMMJJSVS"
   },
   {
     "id": "Li2cKbTms4a7Uz0gdwMh",
     "name": "HD Ceramic Coating Maintenance - Coupes",
     "durationMinutes": 180,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 32999,
+    "squareVariationId": "WPJHYXJJ7ZSQWQVFXCO5Q7AF"
   },
   {
     "id": "DndSnyR4mTsepLY3beoT",
     "name": "HD Ceramic Coating Maintenance - Sedans",
     "durationMinutes": 240,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 42999,
+    "squareVariationId": "UKTZBGMNZA7NVP5XBZHSCZVS"
   },
   {
     "id": "IKOPVp01t78PNMHYwlQ9",
     "name": "HD Ceramic Coating Maintenance - Trucks & SUV",
     "durationMinutes": 300,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 54999,
+    "squareVariationId": "LQGGZT6AXKLZ2C45Z2ABFXBH"
   },
   {
     "id": "WkH0jhFDFAPYyNTMTTtP",
     "name": "HD Exterior Detail & Paint Correction",
     "durationMinutes": 480,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": null,
+    "squareVariationId": null
   },
   {
     "id": "qehFHXxJovXJU1GWyETg",
     "name": "HD Exterior Package For Coupes",
     "durationMinutes": 180,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 32999,
+    "squareVariationId": "BMLRFEO7FV57FNHFZOQN7A7P"
   },
   {
     "id": "0ozQ4e0mKsahMMkvZmsm",
     "name": "HD Exterior Package For Sedans",
     "durationMinutes": 240,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 42999,
+    "squareVariationId": "C4ZAV3RHJUAHB2ZDAJ4M7WB7"
   },
   {
     "id": "5qKp6GGzReMQ8zyBFQU4",
     "name": "HD Exterior Package For Super Cars",
     "durationMinutes": 240,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 42999,
+    "squareVariationId": "G7LMLAZFQWSJMZHEJIOYUCMJ"
   },
   {
     "id": "I51xxkdjMW9LFvGYv9Cu",
     "name": "HD Exterior Package For Trucks & Suv's",
     "durationMinutes": 300,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 54999,
+    "squareVariationId": "ULZC47GOKNK3QS7UFQI2HZCL"
   },
   {
     "id": "3bocoPm6un7qnmjuWr9k",
     "name": "Headlight Restoration ONLY",
     "durationMinutes": 60,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 21999,
+    "squareVariationId": null
   },
   {
     "id": "woJJl2wFo33tEAdxGLiL",
     "name": "Headlight Restoration with Paint Protection Film",
     "durationMinutes": 90,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 29999,
+    "squareVariationId": "MWWHWLCY3UPZ2UYKFCRBIK75"
   },
   {
     "id": "CuWhp6aNtm9RCvq4gv5G",
     "name": "Headlight Restoration with Paint Protection Film (Porsche Headlights)",
     "durationMinutes": 90,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 34999,
+    "squareVariationId": null
   },
   {
     "id": "3HcN8Jl8BgrOVqp6xAiS",
     "name": "Headlight Restoration with Paint Protection Film (Severe)",
     "durationMinutes": 90,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 39999,
+    "squareVariationId": "B4KQV43DVW2ZP6NUHBFWGAHF"
   },
   {
     "id": "4lvL4IVkh3M13JUdLTmR",
     "name": "Heavy Paint Correction Add-On",
     "durationMinutes": 270,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 59999,
+    "squareVariationId": "BULOEMHZ2GG5JHV5CM47EQNJ"
   },
   {
     "id": "dxgF19ntbgckUof6XNUE",
     "name": "Interior Cleaning Extra",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": null,
+    "squareVariationId": null
   },
   {
     "id": "AnH4GQ2OMGdhBM2O6Ktr",
     "name": "Paint Correction",
     "durationMinutes": 240,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 80000,
+    "squareVariationId": "ZS7UI7YMBZA7R3GUQS6FIIA6"
   },
   {
     "id": "vFEYVejtQ123Nv1Tw9Xo",
     "name": "Paint Protection Film Removal",
     "durationMinutes": 480,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": null,
+    "squareVariationId": null
   },
   {
     "id": "zQu1A5hPFihGNFdR5VAt",
     "name": "Pinnacle (Best) - 2 Doors + Back Window (Coupe)",
     "durationMinutes": 90,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 41999,
+    "squareVariationId": "TDXCIUIZA76ONS46G42LTJR6"
   },
   {
     "id": "FOJvbJ59WhohKDEkdAe6",
     "name": "Pinnacle (Best) - 4 Doors + Back Window (Sedan)",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 59999,
+    "squareVariationId": "GUMQZNX2ZRPXBWMQWSEBQOF5"
   },
   {
     "id": "Df9YPotDRwTh9k3BumfH",
     "name": "Pinnacle (Best) - 4 Doors + Back Window (Truck/SUV)",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 61999,
+    "squareVariationId": "QNWZVTUT4ELU64J5SOSQZOGT"
   },
   {
     "id": "rhMcK788UGh6clwk1T1v",
     "name": "Pinnacle (Best) - Full Vehicle (XL SUV/Van)",
     "durationMinutes": 150,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 74999,
+    "squareVariationId": "S33HIVNSOCGSV4MIWYWYBTBF"
   },
   {
     "id": "LV0hxfIpi9CFAgWrHCf3",
     "name": "Pinnacle (Best) Color Match - Ceramic Window Film - Two Front Windows Only - Trucks & Suv's",
     "durationMinutes": 30,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 24500,
+    "squareVariationId": "UZVFS3BEZVIVGG7TXSRV6H23"
   },
   {
     "id": "sSEY6pC9mOVTwmKLDOfy",
     "name": "Pinnacle (Best) Panoramic Sunroof",
     "durationMinutes": 45,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 29999,
+    "squareVariationId": "TK2DDTOCB6HVBAPWE44ZMROE"
   },
   {
     "id": "0eprD63HD7zvdCGlNlA1",
     "name": "Pinnacle (Best) Sunroof (Small/Non-Panoramic)",
     "durationMinutes": 30,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 24999,
+    "squareVariationId": "4C4XCEYN6U536DRWPLOJ7XSA"
   },
   {
     "id": "tTdvF6eAjgxNJNDVDeAB",
     "name": "Pinnacle (Best) Windshield",
     "durationMinutes": 45,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 29999,
+    "squareVariationId": "HYR35GQEHLGYBWZ35DLFDAXT"
   },
   {
     "id": "U0TbAwic7bVvDPT6S90o",
     "name": "PPF Paint Protection Film - Full Vehicle",
     "durationMinutes": 480,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": null,
+    "squareVariationId": null
   },
   {
     "id": "ZOh1Bpg171vMxm04oyTO",
     "name": "PPF Paint Protection Film - See Appointment Notes",
     "durationMinutes": 180,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": null,
+    "squareVariationId": null
   },
   {
     "id": "tBL1LlV51qsMROHgRBgG",
     "name": "PPF Paint Protection Film - See Appointment Notes (2 Hours)",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": null,
+    "squareVariationId": null
   },
   {
     "id": "v2vQD4UvzC4x2GhGSMLI",
     "name": "PPF Paint Protection Film - See Appointment Notes (Roof and Side Mirrors)",
     "durationMinutes": 360,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": null,
+    "squareVariationId": null
   },
   {
     "id": "fYNuT2kJrLxkpiHzdnQF",
     "name": "PPF Removal",
     "durationMinutes": 60,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": null,
+    "squareVariationId": null
   },
   {
     "id": "1921oY9RkLqYB1idxgqi",
     "name": "Premium Hand Wash For Coupes ( 2 Door Cars)",
     "durationMinutes": 60,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 10000,
+    "squareVariationId": "NGRULDUM5Q6DLPP2XFOMVM3J"
   },
   {
     "id": "UMivKyPZwQYLzUMBabvf",
     "name": "Premium Hand Wash for Sedans (4 Doors Cars)",
     "durationMinutes": 60,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 12999,
+    "squareVariationId": "2SYXZSUF7FMPWCAY2FM3VZIF"
   },
   {
     "id": "uGUfz371Lt6syAySU4Kz",
     "name": "Premium Hand Wash Trucks & Suv's",
     "durationMinutes": 90,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 15999,
+    "squareVariationId": "VS5CLCJZQZ4O5RUQSVMIC7GX"
   },
   {
     "id": "lUjERMC1vISPaLXOSeL3",
     "name": "Stratos (Elite) - 2 Doors + Back Window (Coupe)",
     "durationMinutes": 90,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 59999,
+    "squareVariationId": "JN3MP7UISRD6LVZMJQDUXTZX"
   },
   {
     "id": "qFtZibvtIbx6RuR7zWEx",
     "name": "Stratos (Elite) - 4 Doors + Back Window (Sedan)",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 81999,
+    "squareVariationId": "VUNNGGDHQIPK4ILNLZCRAJV5"
   },
   {
     "id": "5qZXclGbWNS8E7Hk0h8M",
     "name": "Stratos (Elite) - 4 Doors + Back Window (Truck/SUV)",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 84999,
+    "squareVariationId": "WNDPGEKL2TWONLIKYD5JQ2PH"
   },
   {
     "id": "CR4nixw2S6qUVZ2mkFAP",
     "name": "Stratos (Elite) - Full Vehicle (XL SUV/Van)",
     "durationMinutes": 150,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 99999,
+    "squareVariationId": "QUJRIGSQP2O4Q7XQUAAC33XR"
   },
   {
     "id": "3lTOeZ3ZurxhFDqSLpDM",
     "name": "Stratos (Elite) Color Match - Ceramic Window Film - Two Front Windows Only - Trucks & Suv's",
     "durationMinutes": 30,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 33500,
+    "squareVariationId": "ZA56XIKFIAK6LK4IY77GN62Q"
   },
   {
     "id": "CKb2sPMyog7fZex6zUDK",
     "name": "Stratos (Elite) Panoramic Sunroof",
     "durationMinutes": 45,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 42999,
+    "squareVariationId": "DJD7ILF5LEVJ6MT2SWM5PQHV"
   },
   {
     "id": "mudrBThfomCrRwHm0GUx",
     "name": "Stratos (Elite) Sunroof (Small/Non-Panoramic)",
     "durationMinutes": 30,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 32999,
+    "squareVariationId": "7575ZZMENBXCQLFYRKSGR4WM"
   },
   {
     "id": "OimxRnS1ihbQZr9qKIrK",
     "name": "Stratos (Elite) Windshield",
     "durationMinutes": 45,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 42999,
+    "squareVariationId": "CY7URPSGY7PPFJJ2YG5YOJCD"
   },
   {
     "id": "pqAupjmfKotcpQ6U2rzk",
     "name": "Tesla Cybertruck - Pinnacle (Best) Ceramic Window Film - Full Windshield",
     "durationMinutes": 60,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 72999,
+    "squareVariationId": "XBNKUFWZBXXFPNSQDVCCW3CS"
   },
   {
     "id": "YoJ4AgNLks8sJTAut9zK",
     "name": "Tesla Cybertruck - Stratos (Elite) Ceramic Window Film - Full Windshield",
     "durationMinutes": 60,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 89999,
+    "squareVariationId": "Q6J4Y4DAIDV5L4RIKWPRRVDP"
   },
   {
     "id": "QpeA40rj5TYWAOPLR5Jn",
     "name": "Tesla Cybertruck CTX (Better) All Side Windows + Rear Windows",
     "durationMinutes": 150,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 44999,
+    "squareVariationId": "52FQBL6V2GWCY74IOPFT5RNN"
   },
   {
     "id": "j5bQyFguLHg41qzWDyhp",
     "name": "Tesla Cybertruck CTX (Better) Color Match (2 front windows + Quarter front windows)",
     "durationMinutes": 45,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 21500,
+    "squareVariationId": "A2JEP3SP5HYY7TLAXEEJ3VI2"
   },
   {
     "id": "XNjCdu6Wh55CbKIJlyKU",
     "name": "Tesla Cybertruck Pinnacle (Best) All Side Windows + Rear Windows",
     "durationMinutes": 150,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 55999,
+    "squareVariationId": "VH7SZJXXY56L3KHKUP5P7BFR"
   },
   {
     "id": "RhHbxRCAfLlUtQjNJzp8",
     "name": "Tesla Cybertruck Pinnacle (Best) Color Match (2 front windows + Quarter front windows)",
     "durationMinutes": 60,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 32500,
+    "squareVariationId": "IDVM227SKNIABYMOEH7S4HHF"
   },
   {
     "id": "NuLgHJOuHw65mEtjRSGH",
     "name": "Tesla Cybertruck Stratos (Elite) All Side Windows + Rear Windows",
     "durationMinutes": 150,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 69999,
+    "squareVariationId": "DANAXQADC7DN72GFYLUFBGOP"
   },
   {
     "id": "MHBqcj4FYR3uFFMN98Fj",
     "name": "Tesla Cybertruck Stratos (Elite) Color Match (2 front windows + Quarter front windows)",
     "durationMinutes": 60,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 37500,
+    "squareVariationId": "65V3PZPX357U3GLJB6CKMRQT"
   },
   {
     "id": "wQ128NQbjIGOy2PVuDF2",
     "name": "Tesla Model 3 - Stratos (Elite) Sunroof",
     "durationMinutes": 30,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 38999,
+    "squareVariationId": "CSEPAMN3ITZ6FQPPBRYI66WO"
   },
   {
     "id": "sQuxbAhrhQszUB9p0Oxj",
     "name": "Tesla Model 3 CTX (Better) - All Side Windows & Half Back Glass",
     "durationMinutes": 105,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 50800,
+    "squareVariationId": "L5ZFYHOR47YC2NS7B4OWQHFW"
   },
   {
     "id": "CHZbO04tbjmC8D3Pedzy",
     "name": "Tesla Model 3 CTX (Better) - Side Windows & Full Back Glass In One Piece",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 58000,
+    "squareVariationId": "2KFPCVVMTJP27PLH5UGHYT7Y"
   },
   {
     "id": "xBl83D3clAK4aSfcbUFn",
     "name": "Tesla Model 3 Full Front PPF",
     "durationMinutes": 300,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 200000,
+    "squareVariationId": "SUGV7VGE7WT4HKNB2ABT6ZMS"
   },
   {
     "id": "oqJtpo0gbagJOgWtzh4Y",
     "name": "Tesla Model 3 Full Wrap PPF",
     "durationMinutes": 720,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 550000,
+    "squareVariationId": "MNQ6GZSZPWT7JNFY2KWDF2VL"
   },
   {
     "id": "5TKHsq16d0DJpwwrHKGH",
     "name": "Tesla Model 3 Pinnacle (Best) - All Side Windows & Half Back Glass",
     "durationMinutes": 105,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 59000,
+    "squareVariationId": "DIPDD6PGGEFPXIKLAELK2PNA"
   },
   {
     "id": "uXb0pLArrEEEBPGavB6c",
     "name": "Tesla Model 3 Pinnacle (Best) - Side Windows & Full Back Glass In One Piece",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 68000,
+    "squareVariationId": "TVYL65GGWZQR2UWE4PX4CJCN"
   },
   {
     "id": "ksePThvTzriXRjKjIL9Z",
     "name": "Tesla Model 3 Stratos (Elite) - All Side Windows & Half Back Glass",
     "durationMinutes": 105,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 83300,
+    "squareVariationId": "DV6HALJ5F3W2NCJTWZ3BG4AI"
   },
   {
     "id": "pN4eYFMkMTAb0qnU9nVG",
     "name": "Tesla Model 3 Stratos (Elite) - Side Windows & Full Back Glass In One Piece",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 85000,
+    "squareVariationId": "FWJBWI3GCKMMQG24SSTNXGTU"
   },
   {
     "id": "JBwBkdXADwo8qq9vm1LA",
     "name": "Tesla Model S CTX (Better) - All Sides + Rear Windows",
     "durationMinutes": 105,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 50800,
+    "squareVariationId": "DL2WCOAVSGZD5FDIRO3FGP22"
   },
   {
     "id": "3XCZ1iy9dd3PjoclTjDt",
     "name": "Tesla Model S Full Car PPF",
     "durationMinutes": 780,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 650000,
+    "squareVariationId": "LINLOMRV5UWZRGOBPCB7VCZB"
   },
   {
     "id": "PvYhpOR55ptPqVk6YybE",
     "name": "Tesla Model S Full Front PPF",
     "durationMinutes": 360,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 250000,
+    "squareVariationId": "BY66CD476T65FO3UATMRN6UZ"
   },
   {
     "id": "BJoJ19BtKkZPQSFyWY1f",
     "name": "Tesla Model S Pinnacle (Best) - All Sides + Rear Windows",
     "durationMinutes": 105,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 59000,
+    "squareVariationId": "7UGYMX2BH4ALWCRJ6VPSF2ZB"
   },
   {
     "id": "LSNod86MTmvPDP8LfH5a",
     "name": "Tesla Model S Pinnacle (Best) Sunroof",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 72900,
+    "squareVariationId": "BPTIPIW4IPM3O7XNYOXBQYBN"
   },
   {
     "id": "UE2pGbqIDlcxSdKUw8i6",
     "name": "Tesla Model S Stratos (Elite) - All Sides + Rear Windows",
     "durationMinutes": 105,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 83300,
+    "squareVariationId": "MRNULCTGCIK667GGBCGQAB7L"
   },
   {
     "id": "lzP8mOS175dhE7UnRD7V",
     "name": "Tesla Model S Stratos (Elite) Sunroof",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 89900,
+    "squareVariationId": "X3CQI6RQN3QJW23ADXLVUQBT"
   },
   {
     "id": "d7deysPxSSRZgWcosGxg",
     "name": "Tesla Model X AIR80 Windshield (Custom Install)",
     "durationMinutes": 180,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 97499,
+    "squareVariationId": "O5RSINL3TEXR2HPRS5WJ6X3U"
   },
   {
     "id": "TzsdUxAaiNk1YxOrItlX",
     "name": "Tesla Model X CTX (Better) - All Sides + Rear Windows",
     "durationMinutes": 150,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 51999,
+    "squareVariationId": "GIJ7WRLVJWUJ6LAGAY56MZEM"
   },
   {
     "id": "9oVOtxWb5BcKIfh7YsDw",
     "name": "Tesla Model X CTX (Better) Color Match (Front 2 Windows)",
     "durationMinutes": 45,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 21500,
+    "squareVariationId": "B6XEQL7LCIPRQRVNMKKI74QW"
   },
   {
     "id": "hjg1rXoRZdghwjkqzvF9",
     "name": "Tesla Model X Full Car PPF",
     "durationMinutes": 840,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 650000,
+    "squareVariationId": "MVCKSJP2Y2Q46FX6PTMLPIUN"
   },
   {
     "id": "hbCS9G4edtaSe12A98c2",
     "name": "Tesla Model X Full Front PPF",
     "durationMinutes": 360,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 250000,
+    "squareVariationId": "T4XYRYNHWQDZRQPZ65DHQLT7"
   },
   {
     "id": "cKDSwuywLSvoDfEqzox6",
     "name": "Tesla Model X Pinnacle (Best) - All Sides + Rear Windows",
     "durationMinutes": 150,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 61999,
+    "squareVariationId": "4JFHLUWUMD6URYECJWWSVPJ4"
   },
   {
     "id": "Ip40DGbszMQ00zqxeusB",
     "name": "Tesla Model X Pinnacle (Best) Color Match (Front 2 Windows)",
     "durationMinutes": 45,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 24500,
+    "squareVariationId": "J4SAPDHHSOGDB4E72G3S62SO"
   },
   {
     "id": "IrSSWZjbg4kNNa2LKGSY",
     "name": "Tesla Model X Pinnacle (Best) Sunroof",
     "durationMinutes": 45,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 28000,
+    "squareVariationId": "7BEL7HSGDEPSLTU23MME2YB4"
   },
   {
     "id": "DCq5kWUQjXRnnBdEPu0u",
     "name": "Tesla Model X Stratos (Elite) - All Sides + Rear Windows",
     "durationMinutes": 150,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 84999,
+    "squareVariationId": "NNAY5YAGIZUUJWEROMYXZFTY"
   },
   {
     "id": "oYPhwFPR5FDfwOIu9M84",
     "name": "Tesla Model X Stratos (Elite) 70 Windshield (Custom Install)",
     "durationMinutes": 180,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 116499,
+    "squareVariationId": "H4V5AC2YYQ7C2XCW6WTRFTNM"
   },
   {
     "id": "cJrE1fMf9vhvBSL7D2pw",
     "name": "Tesla Model X Stratos (Elite) Color Match (Front 2 Windows)",
     "durationMinutes": 45,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 33500,
+    "squareVariationId": "MR732PQH3KPODIZHCPIIYKBA"
   },
   {
     "id": "fqeGlON2K50exGHGtfLJ",
     "name": "Tesla Model X Stratos (Elite) Sunroof",
     "durationMinutes": 45,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 35000,
+    "squareVariationId": "2B6VDJZHMNEDURC35DXHV6DB"
   },
   {
     "id": "LaqlyQg9qEw5qDV0c2BO",
     "name": "Tesla Model Y Classic (Good) Color Match (Front 2 Windows)",
     "durationMinutes": 30,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 18000,
+    "squareVariationId": "MQDR7JDNCTDHLFGTK2HVDFEO"
   },
   {
     "id": "uQzlE6TGM4TapmR9tAri",
     "name": "Tesla Model Y CTX (Better) Color Match (Front 2 Windows)",
     "durationMinutes": 30,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 21500,
+    "squareVariationId": "MJ7ECIJQTKKPWOSB2S3PC7FP"
   },
   {
     "id": "tjVrgyswqgufVtYiufWu",
     "name": "Tesla Model Y CTX (Better) Window Film Installation (no sunroof, no windshield)",
     "durationMinutes": 105,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 50300,
+    "squareVariationId": "KE2LP6OXBVMMGVZBFLNDXUE2"
   },
   {
     "id": "PA4anjPY1T8ewvw6sUqs",
     "name": "Tesla Model Y Full Car PPF",
     "durationMinutes": 720,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 550000,
+    "squareVariationId": "XNVVRRE3Q7SD7YXGSALXWFJO"
   },
   {
     "id": "Z1pOHit6AxVWDQb87OHz",
     "name": "Tesla Model Y Full Front PPF",
     "durationMinutes": 300,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 200000,
+    "squareVariationId": "3F2BOXSYNZ7TUIF65PFHWWD4"
   },
   {
     "id": "Cp3pVsmia4Jqzxstbfl2",
     "name": "Tesla Model Y Pinnacle (Best) Color Match (Front 2 Windows)",
     "durationMinutes": 30,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 24500,
+    "squareVariationId": "RA7J4N77DLAG5RGFWTWMATNL"
   },
   {
     "id": "AyWMDtpQkBRKMC4uYHi4",
     "name": "Tesla Model Y Pinnacle (Best) Sunroof",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 72900,
+    "squareVariationId": "L7ZHW4RYKBVA25CBYCXXQGVR"
   },
   {
     "id": "zLqFEFgf2NfI35VnWR5R",
     "name": "Tesla Model Y Pinnacle (Best) Window Film Installation (no sunroof, no windshield)",
     "durationMinutes": 105,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 56000,
+    "squareVariationId": "4LOX66YV72PS64OCDMOK3F6P"
   },
   {
     "id": "rvnGyfFv18a3sGJ75oyt",
     "name": "Tesla Model Y Stratos (Elite) Color Match (Front 2 Windows)",
     "durationMinutes": 30,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 33500,
+    "squareVariationId": "EU3TNQTP4M4MZM7ZLQE3BLUI"
   },
   {
     "id": "pMAGhHHkNLrH92Jnzwdh",
     "name": "Tesla Model Y Stratos (Elite) Sunroof",
     "durationMinutes": 120,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 89900,
+    "squareVariationId": "BKTLJ224AHSAYAK2D7GPAHZ2"
   },
   {
     "id": "0r1KZiY5YfG04yilNeV2",
     "name": "Tesla Model Y Stratos (Elite) Window Film Installation (no sunroof, no windshield)",
     "durationMinutes": 105,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 70000,
+    "squareVariationId": "FZQMYLODZTIFGXKY43ZBIQWH"
   },
   {
     "id": "fqFWcHevH7tv1ikyPje4",
     "name": "Wheels Off Ceramic Coating",
     "durationMinutes": 270,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 62499,
+    "squareVariationId": "W25VR7A3AA2X7WY4RZBHIWA5"
   },
   {
     "id": "NBbtIxK7ZNl1xJR29xwK",
     "name": "Windshield Ceramic Coating",
     "durationMinutes": 60,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 20000,
+    "squareVariationId": "AOOBAOPPBKWUESRE5RRGYBKY"
   },
   {
     "id": "5GOe3AfA42UI7TsEAFbj",
     "name": "Windshield Removal",
     "durationMinutes": 30,
-    "userId": "FohbxsMcPFSEC6AdBfOc"
+    "userId": "FohbxsMcPFSEC6AdBfOc",
+    "priceCents": 9999,
+    "squareVariationId": "JN3Q3UEPDXWFXJQ74LUNYKMB"
   }
 ]

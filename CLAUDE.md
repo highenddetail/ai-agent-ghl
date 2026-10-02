@@ -6,10 +6,11 @@ SMS/Instagram sales agent for High End Detail on GoHighLevel. Cloudflare Worker 
 
 - `src/prompt.ts`: Julia's system prompt: tone, rules, NEPQ modules, booking flow, hours, address. Most "change what the agent says or does" requests are edits here.
 - `src/knowledge/pricing.md`: service prices and "what's included" (exported from Square). Price changes go here; keep the table format and `## Category` headings, since `get_pricing` splits on them.
-- `src/knowledge/calendars.json`: active GHL service calendars (`id`, `name`, `durationMinutes`, `userId`). Regenerate from `GET /calendars/` (active, `calendarType = service_booking`) when calendars are added or renamed.
+- `src/knowledge/calendars.json`: active GHL service calendars (`id`, `name`, `durationMinutes`, `userId`, `priceCents` and `squareVariationId` from the Square catalog). Regenerate from `GET /calendars/` (active, `calendarType = service_booking`) when calendars are added or renamed.
 - `src/agent.ts`: Claude tool loop and tools (pricing, calendars, slots, booking, phone, buying intent, escalation). Tool descriptions live here too.
-- `src/index.ts`: webhook endpoint, per-contact Durable Object (debounce, tag gating, human-reply pause), `/simulate`.
-- `wrangler.toml` `[vars]`: rollout switches (`ONLY_TAG`, `DRY_RUN`, model, effort, tags, delays). Secrets (`ANTHROPIC_API_KEY`, `GHL_TOKEN`, `WEBHOOK_SECRET`) live only in Cloudflare.
+- `src/index.ts`: GHL webhook, Square payment webhook (`/webhook/square`), per-contact Durable Object (debounce, tag gating, human-reply pause), `/simulate`, `/diag`.
+- `src/square.ts`: Square deposit payment links and webhook signature check. Deposit = `DEPOSIT_PERCENT` of the booked calendars' `priceCents`.
+- `wrangler.toml` `[vars]`: rollout switches (`ONLY_TAG`, `DRY_RUN`, model, effort, tags, delays). Secrets (`ANTHROPIC_API_KEY`, `GHL_TOKEN`, `WEBHOOK_SECRET`, `SQUARE_ACCESS_TOKEN`, `SQUARE_WEBHOOK_SIGNATURE_KEY`) live only in Cloudflare.
 
 ## Deploying
 

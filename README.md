@@ -26,6 +26,17 @@ Cliente escribe (SMS / IG)
 - **Si un humano responde** manualmente desde GHL, el bot se queda callado en ese contacto por 5 minutos (`HUMAN_PAUSE_MINUTES`).
 - El tag `stop bot`, que ya usan, también detiene al agente.
 
+## Depósitos con Square
+
+Cuando Julia agenda, manda un link de pago de Square por el **10%** (`DEPOSIT_PERCENT`) del precio de catálogo de los servicios agendados. Los precios salen de `priceCents` en `src/knowledge/calendars.json`, tomados del catálogo de Square. Los servicios de cotización personalizada no llevan depósito.
+
+- Al enviar el link: tag `deposito-pendiente` y una nota con el monto y el link.
+- Cuando el cliente paga, Square avisa a `/webhook/square`. El Worker verifica la firma, cambia el tag a `deposito-pagado`, deja una nota con el ID del pago y le confirma al cliente por el mismo canal.
+
+Configuración en Square (developer.squareup.com → tu app → Production):
+1. **Credentials → Access token**: guárdalo en Cloudflare como Secret `SQUARE_ACCESS_TOKEN`.
+2. **Webhooks → Add subscription**: URL `https://<tu-worker>.workers.dev/webhook/square`, evento `payment.updated`. Copia la **Signature key** y guárdala en Cloudflare como Secret `SQUARE_WEBHOOK_SIGNATURE_KEY`.
+
 ## Instalación
 
 ### 1. Token de GoHighLevel (Private Integration)

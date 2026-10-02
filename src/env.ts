@@ -4,6 +4,8 @@ export interface Env {
   ANTHROPIC_API_KEY: string;
   GHL_TOKEN: string;
   WEBHOOK_SECRET: string;
+  SQUARE_ACCESS_TOKEN: string;
+  SQUARE_WEBHOOK_SIGNATURE_KEY: string;
 
   GHL_LOCATION_ID: string;
   TIMEZONE: string;
@@ -18,6 +20,10 @@ export interface Env {
   DEBOUNCE_SECONDS: string;
   HUMAN_PAUSE_MINUTES: string;
   CHANGE_NOTICE_HOURS: string;
+  SQUARE_LOCATION_ID: string;
+  DEPOSIT_PERCENT: string;
+  DEPOSIT_PENDING_TAG: string;
+  DEPOSIT_PAID_TAG: string;
 }
 
 export function csv(value: string | undefined): string[] {

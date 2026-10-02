@@ -105,6 +105,10 @@ export class GhlClient {
     await this.request("PUT", `/calendars/events/appointments/${appointmentId}`, { version: "2021-04-15", body: fields });
   }
 
+  async removeTags(contactId: string, tags: string[]): Promise<void> {
+    await this.request("DELETE", `/contacts/${contactId}/tags`, { body: { tags } });
+  }
+
   async addTags(contactId: string, tags: string[]): Promise<void> {
     await this.request("POST", `/contacts/${contactId}/tags`, { body: { tags } });
   }
