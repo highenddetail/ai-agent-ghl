@@ -447,7 +447,10 @@ export class ConversationAgent extends DurableObject<Env> {
         !botBodies.has(m.body!.trim()),
     );
     if (humanReply && Date.now() - Date.parse(humanReply.dateAdded) < pauseMs) {
-      return skip("a team member replied recently");
+      // Look again when the pause ends: if the team didn't answer the customer by then, Julia does.
+      const retryAt = Date.parse(humanReply.dateAdded) + pauseMs + 5_000;
+      await this.ctx.storage.setAlarm(retryAt);
+      return skip(`a team member replied recently; will answer at ${formatInZone(new Date(retryAt), env.TIMEZONE)} if nobody else does`);
     }
 
     const transcript = renderTranscript(recent, botIds, env.TIMEZONE);
