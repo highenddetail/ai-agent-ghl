@@ -10,7 +10,7 @@ Corre en **Cloudflare Workers** (plan gratis) usando Durable Objects.
 ```
 Cliente escribe (SMS / IG)
    └─> Workflow de GHL "Customer Replied" ──webhook──> Cloudflare Worker /webhook/ghl
-          └─> Durable Object por contacto (espera 20 s por si manda varios mensajes seguidos)
+          └─> Durable Object por contacto (espera 7 s por si manda varios mensajes seguidos)
                  ├─ revisa tags (ai-agent, stop bot, ai-escalated) y si un humano respondió hace poco
                  ├─ lee los últimos 40 mensajes de la conversación en GHL
                  ├─ Claude (Julia) decide la respuesta usando herramientas:
@@ -104,7 +104,7 @@ Para ver los logs en vivo: `npm run tail`.
 | `ONLY_TAG` | `ai-agent` | Si tiene valor, solo responde a contactos con ese tag. |
 | `DRY_RUN` | `false` | `true` = deja la respuesta como nota sin enviarla. |
 | `STOP_TAGS` | `stop bot,ai-escalated` | Contactos con estos tags nunca reciben respuesta automática. |
-| `DEBOUNCE_SECONDS` | `20` | Espera tras el último mensaje del cliente antes de responder. |
+| `DEBOUNCE_SECONDS` | `7` | Espera tras el último mensaje del cliente antes de responder. |
 | `HUMAN_PAUSE_HOURS` | `12` | Horas de silencio después de que alguien del equipo responde manualmente. |
 
 ## Costos

@@ -36,7 +36,7 @@ STOP_TAGS = "stop bot,ai-escalated"
 ESCALATION_TAG = "ai-escalated"
 BUYING_INTENT_TAG = "ai-buying-intent"
 # Wait this long after the last customer message before replying (people often send several texts in a row).
-DEBOUNCE_SECONDS = "20"
+DEBOUNCE_SECONDS = "7"
 # Stay quiet if a team member replied manually within this many hours.
 HUMAN_PAUSE_HOURS = "12"
 
