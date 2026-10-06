@@ -290,7 +290,7 @@ Window Tinting is split into vehicle-specific and model-specific categories in S
 
 **CTX (Better) - 2 Doors + Back Window (Coupe):** LLumar CTX ceramic window film for the 2 front doors and back window on a coupe. True nano-ceramic construction rejects up to 69% of infrared heat and up to 58% of total solar energy, with zero metal content — no interference with GPS, radio, or cellular signals. Blocks over 99% of UV rays. Backed by LLumar's lifetime warranty for the original owner.
 
-**Classic (Good) - 2 Doors + Back Window (Coupe):** FormulaOne Classic dyed window film for the 2 front doors and back window on a coupe. A sensibly priced entry-level choice with a wide range of shade options, optical clarity, scratch resistance, and protection from more than 99% of harmful UV rays.
+**Classic (Good) - 2 Doors + Back Window (Coupe):** FormulaOne Classic carbon window film for the 2 front doors and back window on a coupe. A sensibly priced entry-level choice with a wide range of shade options, optical clarity, scratch resistance, and protection from more than 99% of harmful UV rays.
 
 **Pinnacle (Best) - 2 Doors + Back Window (Coupe):** Formula One Pinnacle ceramic window film for the 2 front doors and back window on a coupe. Nano-ceramic construction rejects up to 88% of infrared heat with a fully metal-free build — zero signal interference. Blocks over 99% of UV rays. Backed by Formula One's transferable lifetime warranty covering film and installation.
 
@@ -309,7 +309,7 @@ Window Tinting is split into vehicle-specific and model-specific categories in S
 
 **CTX (Better) - 4 Doors + Back Window (Sedan):** LLumar CTX ceramic window film for all 4 doors and the back window on a sedan. True nano-ceramic construction rejects up to 69% of infrared heat and up to 58% of total solar energy, with zero metal content — no interference with GPS, radio, or cellular signals. Blocks over 99% of UV rays. Backed by LLumar's lifetime warranty for the original owner.
 
-**Classic (Good) - 4 Doors + Back Window (Sedan):** FormulaOne Classic dyed window film for all 4 doors and the back window on a sedan. A sensibly priced entry-level choice with a wide range of shade options, optical clarity, scratch resistance, and protection from more than 99% of harmful UV rays.
+**Classic (Good) - 4 Doors + Back Window (Sedan):** FormulaOne Classic carbon window film for all 4 doors and the back window on a sedan. A sensibly priced entry-level choice with a wide range of shade options, optical clarity, scratch resistance, and protection from more than 99% of harmful UV rays.
 
 **Pinnacle (Best) - 4 Doors + Back Window (Sedan):** Formula One Pinnacle ceramic window film for all 4 doors and the back window on a sedan. Nano-ceramic construction rejects up to 88% of infrared heat with a fully metal-free build — zero signal interference. Blocks over 99% of UV rays. Backed by Formula One's transferable lifetime warranty covering film and installation.
 
@@ -328,7 +328,7 @@ Window Tinting is split into vehicle-specific and model-specific categories in S
 
 **CTX (Better) - 4 Doors + Back Window (Truck/SUV):** LLumar CTX ceramic window film for all 4 doors and the back window on a truck or SUV. True nano-ceramic construction rejects up to 69% of infrared heat and up to 58% of total solar energy, with zero metal content — no interference with GPS, radio, or cellular signals. Blocks over 99% of UV rays. Backed by LLumar's lifetime warranty for the original owner.
 
-**Classic (Good) - 4 Doors + Back Window (Truck/SUV):** FormulaOne Classic dyed window film for all 4 doors and the back window on a truck or SUV. A sensibly priced entry-level choice with a wide range of shade options, optical clarity, scratch resistance, and protection from more than 99% of harmful UV rays.
+**Classic (Good) - 4 Doors + Back Window (Truck/SUV):** FormulaOne Classic carbon window film for all 4 doors and the back window on a truck or SUV. A sensibly priced entry-level choice with a wide range of shade options, optical clarity, scratch resistance, and protection from more than 99% of harmful UV rays.
 
 **Pinnacle (Best) - 4 Doors + Back Window (Truck/SUV):** Formula One Pinnacle ceramic window film for all 4 doors and the back window on a truck or SUV. Nano-ceramic construction rejects up to 88% of infrared heat with a fully metal-free build — zero signal interference. Blocks over 99% of UV rays. Backed by Formula One's transferable lifetime warranty covering film and installation.
 
@@ -347,7 +347,7 @@ Window Tinting is split into vehicle-specific and model-specific categories in S
 
 **CTX (Better) - Full Vehicle (XL SUV/Van):** LLumar CTX ceramic window film for all doors and the back window on a full-size SUV or van — think Suburban, Tahoe, Sienna, or a cargo van — where there's significantly more glass than a standard SUV. True nano-ceramic construction rejects up to 69% of infrared heat and up to 58% of total solar energy, with zero metal content — no interference with GPS, radio, or cellular signals. Blocks over 99% of UV rays. Backed by LLumar's lifetime warranty for the original owner.
 
-**Classic (Good) - Full Vehicle (XL SUV/Van):** FormulaOne Classic dyed window film for all doors and the back window on a full-size SUV or van — think Suburban, Tahoe, Sienna, or a cargo van — where there's significantly more glass than a standard SUV. A sensibly priced entry-level choice with a wide range of shade options, optical clarity, scratch resistance, and protection from more than 99% of harmful UV rays.
+**Classic (Good) - Full Vehicle (XL SUV/Van):** FormulaOne Classic carbon window film for all doors and the back window on a full-size SUV or van — think Suburban, Tahoe, Sienna, or a cargo van — where there's significantly more glass than a standard SUV. A sensibly priced entry-level choice with a wide range of shade options, optical clarity, scratch resistance, and protection from more than 99% of harmful UV rays.
 
 **Pinnacle (Best) - Full Vehicle (XL SUV/Van):** Formula One Pinnacle ceramic window film for all doors and the back window on a full-size SUV or van — think Suburban, Tahoe, Sienna, or a cargo van — where there's significantly more glass than a standard SUV. Nano-ceramic construction rejects up to 88% of infrared heat with a fully metal-free build — zero signal interference. Blocks over 99% of UV rays. Backed by Formula One's transferable lifetime warranty covering film and installation.
 
@@ -376,7 +376,7 @@ Durable and Color-Stable – Maintains performance and appearance over time with
 Lifetime Limited Warranty – Quality backed by LLumar’s trusted reputation and professional installation network.
 LLumar CTX is the go-to choice for drivers who want premium heat and UV protection, enhanced privacy, and a clean, modern look—without sacrificing clarity or connectivity.
 
-**Classic (Good) Color Match - Carbon Window Film:** FormulaOne® Classic™ is an uncompromising dyed window tint available in a wide variety of shades to help you express your personal style while enjoying the privacy you desire. It’s a sensibly priced entry-level choice and anything but basic. Because it’s Formula One this dyed window tint delivers the unexpectedly premium benefits of optical clarity, scratch resistance, and protection from more than 99% of harmful UV rays.
+**Classic (Good) Color Match - Carbon Window Film:** FormulaOne® Classic™ is an uncompromising carbon window tint available in a wide variety of shades to help you express your personal style while enjoying the privacy you desire. It’s a sensibly priced entry-level choice and anything but basic. Because it’s Formula One this carbon window tint delivers the unexpectedly premium benefits of optical clarity, scratch resistance, and protection from more than 99% of harmful UV rays.
 
 **Pinnacle (Best) Color Match - Ceramic Window Film - Two Front Windows Only - Trucks & Suv's:** Extreme Performance, Exceptional Quality
 
@@ -407,9 +407,9 @@ LLumar CTX is the go-to choice for drivers who want premium heat and UV protecti
 
 **CTX (Better) Sunroof (Small/Non-Panoramic):** LLumar CTX ceramic window film for a smaller single-pane sunroof or moonroof. True nano-ceramic construction rejects up to 69% of infrared heat and up to 58% of total solar energy, with zero metal content — no interference with GPS, radio, or cellular signals. Blocks over 99% of UV rays. Backed by LLumar's lifetime warranty for the original owner.
 
-**Classic (Good) Panoramic Sunroof:** FormulaOne Classic dyed window film for a panoramic sunroof — the large, one or two-piece glass roof found on many modern SUVs and crossovers. A sensibly priced entry-level choice with a wide range of shade options, optical clarity, scratch resistance, and protection from more than 99% of harmful UV rays.
+**Classic (Good) Panoramic Sunroof:** FormulaOne Classic carbon window film for a panoramic sunroof — the large, one or two-piece glass roof found on many modern SUVs and crossovers. A sensibly priced entry-level choice with a wide range of shade options, optical clarity, scratch resistance, and protection from more than 99% of harmful UV rays.
 
-**Classic (Good) Sunroof (Small/Non-Panoramic):** FormulaOne Classic dyed window film for a smaller single-pane sunroof or moonroof. A sensibly priced entry-level choice with a wide range of shade options, optical clarity, scratch resistance, and protection from more than 99% of harmful UV rays.
+**Classic (Good) Sunroof (Small/Non-Panoramic):** FormulaOne Classic carbon window film for a smaller single-pane sunroof or moonroof. A sensibly priced entry-level choice with a wide range of shade options, optical clarity, scratch resistance, and protection from more than 99% of harmful UV rays.
 
 **Pinnacle (Best) Panoramic Sunroof:** Formula One Pinnacle ceramic window film for a panoramic sunroof — the large, one or two-piece glass roof found on many modern SUVs and crossovers. Nano-ceramic construction rejects up to 88% of infrared heat with a fully metal-free build — zero signal interference. Blocks over 99% of UV rays. Backed by Formula One's transferable lifetime warranty covering film and installation.
 
@@ -565,7 +565,7 @@ LLumar CTX is the go-to choice for drivers who want premium heat and UV protecti
 
 **Tesla Model Y CTX (Better) Window Film Installation (no sunroof, no windshield):** LLumar CTX ceramic window film for the Tesla Model Y — full side and rear window coverage (no sunroof, no windshield). True nano-ceramic construction blocks significant heat and UV while staying completely metal-free, so there's zero interference with radio, GPS, keyless entry, or cellular signals. Backed by LLumar's lifetime warranty for the original owner.
 
-**Tesla Model Y Classic (Good) Color Match (Front 2 Windows):** FormulaOne Classic dyed window film for the Tesla Model Y — front 2 windows only, color matched to the factory rear glass tint. Sensibly priced entry option with a wide range of shade choices and protection from over 99% of harmful UV rays.
+**Tesla Model Y Classic (Good) Color Match (Front 2 Windows):** FormulaOne Classic carbon window film for the Tesla Model Y — front 2 windows only, color matched to the factory rear glass tint. Sensibly priced entry option with a wide range of shade choices and protection from over 99% of harmful UV rays.
 
 **Tesla Model Y Pinnacle (Best) Color Match (Front 2 Windows):** Formula One Pinnacle ceramic window film for the Tesla Model Y — front 2 windows only, color matched to the factory rear glass tint. Rejects up to 88% of infrared heat with a fully metal-free build. Backed by Formula One's transferable lifetime warranty.
 
