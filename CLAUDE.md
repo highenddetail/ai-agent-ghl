@@ -23,3 +23,7 @@ Cloudflare Workers Builds deploys automatically on every push to `claude/gohighl
 - Never invent prices; every price, duration and package name comes from `get_pricing`.
 - The only booking link is the service-menu link in `BOOKING_LINK`.
 - Never confirm an appointment unless `book_appointment` returned "Booked."
+
+## GHL contacts and estimates
+
+- Never put a vehicle (make, model, color) in a contact's first or last name. GHL templates greet customers by first name ("Hi Porsche"). If the name is unknown, leave the name empty and put the vehicle in a tag or note. Estimates require a customer name: use the phone number, e.g. "(305) 297-9075".
