@@ -27,3 +27,4 @@ Cloudflare Workers Builds deploys automatically on every push to `claude/gohighl
 ## GHL contacts and estimates
 
 - Never put a vehicle (make, model, color) in a contact's first or last name. GHL templates greet customers by first name ("Hi Porsche"). If the name is unknown, leave the name empty and put the vehicle in a tag or note. Estimates require a customer name: use the phone number, e.g. "(305) 297-9075".
+- Greeting a customer whose name you don't know (Claude and Julia alike): just "Hi" and the message. Never use the car, a placeholder or the phone number as a name in what the customer reads.
