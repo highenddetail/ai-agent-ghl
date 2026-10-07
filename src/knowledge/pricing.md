@@ -517,6 +517,7 @@ LLumar CTX is the go-to choice for drivers who want premium heat and UV protecti
 | Tesla Model X CTX (Better) Color Match (Front 2 Windows) |  | $215.00 | 0.75h |
 | Tesla Model X Pinnacle (Best) - All Sides + Rear Windows |  | $619.99 | 2.5h |
 | Tesla Model X Pinnacle (Best) Color Match (Front 2 Windows) |  | $245.00 | 0.75h |
+| Tesla Model X Pinnacle (Best) Windshield (Custom Install) |  | $729.99 | 3.0h |
 | Tesla Model X Pinnacle (Best) Sunroof |  | $280.00 | 0.75h |
 | Tesla Model X Stratos (Elite) - All Sides + Rear Windows |  | $849.99 | 2.5h |
 | Tesla Model X Stratos (Elite) 70 Windshield (Custom Install) |  | $1,164.99 | 3.0h |
