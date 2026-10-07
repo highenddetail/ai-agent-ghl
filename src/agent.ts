@@ -480,7 +480,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
           await ctx.ghl.addTags(ctx.contact.id, [env.ESCALATION_TAG]);
           await ctx.ghl.addNote(ctx.contact.id, `AI agent escalated to a human: ${String(input.reason)}`);
         }
-        return "The team has been notified and automatic replies are paused for this contact. Send one short message saying someone from the team will follow up shortly.";
+        return "The team has been notified and automatic replies are paused for this contact. Send one short message saying someone from the team will text them shortly.";
       }
 
       default:
