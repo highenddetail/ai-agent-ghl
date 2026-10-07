@@ -523,7 +523,7 @@ LLumar CTX is the go-to choice for drivers who want premium heat and UV protecti
 | Tesla Model X Stratos (Elite) Color Match (Front 2 Windows) |  | $335.00 | 0.75h |
 | Tesla Model X Stratos (Elite) Sunroof |  | $350.00 | 0.75h |
 
-**Owner combo prices for the Tesla Model X (use these instead of adding the single items):** Pinnacle on the front 2 windows (color match) plus the full windshield is $1,054 total. Stratos on the front 2 windows plus the full windshield is $1,274 total. Quote these as the combo price.
+**Owner combo prices for the Tesla Model X (use these instead of adding the single items):** Pinnacle on the front 2 windows (color match) plus the full windshield is $1,054 total. Stratos on the front 2 windows plus the full windshield is $1,274 total ($375 front 2 windows + $899 windshield; these owner prices override the Square Model X Stratos color match and Stratos 70 windshield lines). Quote these as the combo price.
 
 ### Tesla Window Tinting - Model X — what's included
 
