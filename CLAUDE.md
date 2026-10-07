@@ -1,6 +1,6 @@
 # HED AI Agent (Julia)
 
-SMS/Instagram sales agent for High End Detail on GoHighLevel. Cloudflare Worker + Claude API. The owner (Josue) writes in Spanish; reply in Spanish.
+SMS/Instagram sales agent for High End Detail on GoHighLevel. Cloudflare Worker + Claude API. The owner (Josue) prefers English; reply to him in English.
 
 ## Where things live
 
