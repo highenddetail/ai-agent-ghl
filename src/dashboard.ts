@@ -125,10 +125,10 @@ input[type=search] { border: 1px solid var(--line); border-radius: 10px; padding
 .ch { font: 600 11px var(--f-mono); padding: 1px 6px; border-radius: 5px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
 .k { font: 600 11px var(--f-body); padding: 1px 8px; border-radius: 999px; background: var(--surface-2); color: var(--muted); }
 .k.message_in { background: var(--surface-2); color: var(--ink); }
-.k.reply { background: var(--blue-soft); color: var(--blue); }
+.k.reply, .k.follow_up { background: var(--blue-soft); color: var(--blue); }
 .k.booking, .k.deposit_paid { background: var(--ok-soft); color: var(--ok); }
 .k.deposit_link, .k.buying_intent, .k.rescheduled, .k.phone_saved { background: var(--violet-soft); color: var(--violet); }
-.k.escalated, .k.cancelled, .k.skip { background: var(--warn-soft); color: var(--warn); }
+.k.escalated, .k.cancelled, .k.skip, .k.follow_up_stopped { background: var(--warn-soft); color: var(--warn); }
 .k.error { background: var(--red-soft); color: var(--red); }
 .contacts { list-style: none; margin: 0; padding: 0; max-height: 72vh; overflow-y: auto; }
 .contacts li { padding: 10px 14px; border-bottom: 1px solid var(--line); cursor: pointer; display: grid; gap: 2px; }
@@ -198,13 +198,13 @@ const LABELS = {
   message_in: "Mensaje del cliente", reply: "Respuesta de Julia", skip: "Sin respuesta", error: "Error",
   buying_intent: "Intención de compra", deposit_link: "Link de depósito", deposit_paid: "Depósito pagado",
   booking: "Cita agendada", rescheduled: "Cita movida", cancelled: "Cita cancelada", escalated: "Pasado al equipo",
-  phone_saved: "Teléfono guardado",
+  phone_saved: "Teléfono guardado", follow_up: "Seguimiento", follow_up_stopped: "Seguimiento detenido",
 };
 const FILTERS = [
   ["all", "Todo"], ["conv", "Conversación"], ["money", "Citas y pagos"], ["attention", "Requiere atención"],
 ];
 const GROUPS = {
-  conv: ["message_in", "reply"],
+  conv: ["message_in", "reply", "follow_up", "follow_up_stopped"],
   money: ["booking", "deposit_link", "deposit_paid", "rescheduled", "cancelled", "buying_intent"],
   attention: ["escalated", "error", "skip"],
 };

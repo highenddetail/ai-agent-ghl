@@ -28,6 +28,20 @@ export interface AgentContext {
   transcript: string;
   /** Deposit link awaiting payment, or a paid deposit still to be booked. */
   deposit?: DepositState;
+  /** Set when the customer went quiet and this run writes a follow-up instead of a reply. */
+  followUp?: FollowUpRequest;
+}
+
+export interface FollowUpRequest {
+  /** 1-based number of this follow-up in the sequence. */
+  number: number;
+  total: number;
+  /** How long since Julia's unanswered message, e.g. "26 hours". */
+  silentFor: string;
+  /** The conversation was on Instagram, but this follow-up goes out by SMS (Instagram's 24-hour window closed). */
+  smsAfterIg?: boolean;
+  /** The customer asked to be contacted around now, for this reason. */
+  deferred?: string;
 }
 
 export interface AgentResult {
@@ -39,7 +53,19 @@ export interface AgentResult {
   rounds: number;
   /** Deposit state after this reply; the caller persists it. */
   deposit: DepositState;
+  /** The model stopped follow-ups for this contact, or asked for one on a specific date. */
+  followUp?: { stop?: string; on?: { date: string; reason: string } };
 }
+
+// Tools that change bookings or the contact; a follow-up only writes a message (and can read prices and slots).
+const WRITE_TOOLS = new Set([
+  "book_appointment",
+  "save_contact_phone",
+  "mark_buying_intent",
+  "send_deposit_link",
+  "cancel_appointment",
+  "reschedule_appointment",
+]);
 
 const TOOLS: Anthropic.Beta.BetaTool[] = [
   {
@@ -213,6 +239,35 @@ const TOOLS: Anthropic.Beta.BetaTool[] = [
       additionalProperties: false,
     },
   },
+  {
+    name: "stop_follow_ups",
+    description:
+      "Stops all automatic follow-up messages to this customer. Call when they ask not to be messaged again, say they're not interested, already had the work done elsewhere, or the conversation is clearly closed. Julia still answers if they write again.",
+    strict: true,
+    input_schema: {
+      type: "object",
+      properties: {
+        reason: { type: "string", description: "Short reason for the team." },
+      },
+      required: ["reason"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "schedule_follow_up",
+    description:
+      "Schedules one follow-up on a date the customer named (\"next month\", \"after payday on the 15th\", \"when I'm back from my trip\"), instead of the regular follow-up cadence. Only for a time the customer gave you.",
+    strict: true,
+    input_schema: {
+      type: "object",
+      properties: {
+        date: { type: "string", description: "YYYY-MM-DD, the day to write them (a weekday or Saturday)." },
+        reason: { type: "string", description: "What they said, e.g. 'wants to do the tint after payday on the 15th'." },
+      },
+      required: ["date", "reason"],
+      additionalProperties: false,
+    },
+  },
 ];
 
 export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
@@ -223,6 +278,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
   const usage = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
   const bookedSlots = new Set<string>();
   let flaggedThisRun = false;
+  let followUpResult: AgentResult["followUp"];
 
   let savedPhone = ctx.contact?.phone ?? "";
   const deposit: DepositState = structuredClone(ctx.deposit ?? {});
@@ -242,12 +298,15 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
     "",
     depositStatusLine(ctx.deposit, env.TIMEZONE),
     "",
-    "Write Julia's next message to the customer (or NO_REPLY).",
+    ctx.followUp ? followUpInstruction(ctx.followUp) : "Write Julia's next message to the customer (or NO_REPLY).",
   ].join("\n");
 
   const messages: Anthropic.Beta.BetaMessageParam[] = [{ role: "user", content: userPrompt }];
 
   const executeTool = async (name: string, input: Record<string, unknown>): Promise<string> => {
+    if (ctx.followUp && WRITE_TOOLS.has(name)) {
+      return "Not available in a follow-up: the customer hasn't answered. Write the follow-up message only; booking happens once they reply.";
+    }
     switch (name) {
       case "get_pricing":
         return getPricing(String(input.category));
@@ -483,6 +542,28 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
         return "The team has been notified and automatic replies are paused for this contact. Send one short message saying someone from the team will text them shortly.";
       }
 
+      case "stop_follow_ups": {
+        const reason = String(input.reason);
+        followUpResult = { stop: reason };
+        actions.push(`follow-ups stopped: ${reason}`);
+        if (ctx.contact) {
+          await ctx.ghl.addTags(ctx.contact.id, [env.FOLLOWUP_OPTOUT_TAG]).catch((e) => console.error("addTags failed", e));
+          await ctx.ghl.addNote(ctx.contact.id, `AI agent stopped follow-ups: ${reason}`).catch((e) => console.error("addNote failed", e));
+        }
+        return "No more follow-ups will be sent to this customer. If they asked not to be messaged, reply with one short, polite line (or NO_REPLY); otherwise answer normally.";
+      }
+
+      case "schedule_follow_up": {
+        const date = String(input.date);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return "Not scheduled: date must be YYYY-MM-DD.";
+        if (date <= isoDateInZone(now, env.TIMEZONE)) return "Not scheduled: the date must be in the future.";
+        if (Date.parse(date) - now.getTime() > 120 * 86400_000) return "Not scheduled: more than 4 months away. Don't schedule; just thank them and ask for notice.";
+        const reason = String(input.reason);
+        followUpResult = { on: { date, reason } };
+        actions.push(`follow-up scheduled for ${date}: ${reason}`);
+        return `Scheduled: you'll write them on ${weekdayOf(date)} ${date}. Don't tell them a date or that you'll text them; just reply naturally.`;
+      }
+
       default:
         return `Unknown tool ${name}`;
     }
@@ -516,7 +597,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
 
     if (response.stop_reason === "refusal") {
       actions.push("model refused");
-      return { actions, usage, rounds: turn + 1, deposit };
+      return { actions, usage, rounds: turn + 1, deposit, followUp: followUpResult };
     }
 
     const toolUses = response.content.filter((b): b is Anthropic.Beta.BetaToolUseBlock => b.type === "tool_use");
@@ -526,7 +607,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
         .map((b) => b.text)
         .join("\n")
         .trim();
-      return { reply: cleanReply(text), actions, usage, rounds: turn + 1, deposit };
+      return { reply: cleanReply(text), actions, usage, rounds: turn + 1, deposit, followUp: followUpResult };
     }
 
     messages.push({ role: "assistant", content: response.content });
@@ -549,7 +630,21 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
   }
 
   actions.push("gave up after too many tool calls");
-  return { actions, usage, rounds: MAX_TURNS, deposit };
+  return { actions, usage, rounds: MAX_TURNS, deposit, followUp: followUpResult };
+}
+
+function followUpInstruction(f: FollowUpRequest): string {
+  const lines = [
+    `FOLLOW-UP ${f.number} of ${f.total}. The customer hasn't replied since Julia's last message, ${f.silentFor} ago. Write one follow-up following the FOLLOW-UPS module, or NO_REPLY if the conversation doesn't call for one.`,
+  ];
+  if (f.deferred) lines.push(`They asked to be contacted around now: ${f.deferred}.`);
+  if (f.smsAfterIg) {
+    lines.push(
+      "This goes out by SMS to the phone they gave on Instagram (Instagram no longer allows messaging them). Since it's the first text, say briefly it's Julia from High End Detail, from their Instagram chat.",
+    );
+  }
+  if (f.number === f.total) lines.push("This is the last follow-up: make it the open-door message from the module.");
+  return lines.join("\n");
 }
 
 /** US-first normalization to E.164; returns "" when it isn't a plausible number. */
@@ -587,7 +682,7 @@ interface UpcomingAppointment extends GhlAppointment {
   endIso: string;
 }
 
-async function upcomingAppointments(ghl: GhlClient, contactId: string, timeZone: string): Promise<UpcomingAppointment[]> {
+export async function upcomingAppointments(ghl: GhlClient, contactId: string, timeZone: string): Promise<UpcomingAppointment[]> {
   const now = Date.now();
   return (await ghl.getContactAppointments(contactId))
     .filter((a) => !a.deleted && !/cancel/i.test(a.appointmentStatus ?? ""))

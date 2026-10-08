@@ -27,6 +27,14 @@ export interface Env {
   DEPOSIT_PERCENT: string;
   DEPOSIT_PENDING_TAG: string;
   DEPOSIT_PAID_TAG: string;
+  /** "on" sends follow-ups, "draft" writes them as contact notes, "off" disables them. */
+  FOLLOWUPS: string;
+  /** Delays after Julia's unanswered message, e.g. "1h,1d,2d,7d,30d". */
+  FOLLOWUP_SCHEDULE: string;
+  /** Send window in shop time, "8-18" = 8 AM to 6 PM, Monday to Saturday. */
+  FOLLOWUP_HOURS: string;
+  /** Added when the customer asks not to be messaged again; no follow-ups while present. */
+  FOLLOWUP_OPTOUT_TAG: string;
 }
 
 export function csv(value: string | undefined): string[] {

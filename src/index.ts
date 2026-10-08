@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { DurableObject } from "cloudflare:workers";
-import { contactName, formatInZone, runAgent } from "./agent";
+import { contactName, formatInZone, runAgent, upcomingAppointments } from "./agent";
 import { csv, type Env } from "./env";
 import { GhlClient, GhlError, type GhlMessage } from "./ghl";
 import { CALENDARS } from "./knowledge";
@@ -8,6 +8,18 @@ import { decodeDepositNote, verifySquareSignature, type DepositNote } from "./sq
 import { bookSlot, formatWhen, money, type DepositState } from "./deposits";
 import { actionKind, estimateCost, eventLog, record, type AgentEvent, type EventKind } from "./events";
 import { dashboardHtml, loginHtml, startOfToday } from "./dashboard";
+import {
+  advance,
+  deferredSequence,
+  describeSilence,
+  followUpMode,
+  followUpOffsets,
+  inSendWindow,
+  isOptOutKeyword,
+  nextSendTime,
+  startSequence,
+  type FollowUpState,
+} from "./followups";
 
 export { EventLog } from "./events";
 import { getCalendar } from "./knowledge";
@@ -81,6 +93,8 @@ export default {
       const body = (await request.json()) as {
         channel?: "SMS" | "IG";
         messages: { from: "customer" | "julia"; text: string }[];
+        /** Write follow-up number N (1-5) instead of a reply. */
+        followUp?: number;
       };
       const transcript = body.messages
         .map((m) => `${m.from === "customer" ? "Customer" : "High End Detail"}: ${m.text}`)
@@ -90,6 +104,9 @@ export default {
         ghl: new GhlClient(env.GHL_TOKEN, env.GHL_LOCATION_ID),
         channel: body.channel ?? "SMS",
         transcript,
+        followUp: body.followUp
+          ? { number: body.followUp, total: followUpOffsets(env).length, silentFor: "a while" }
+          : undefined,
       });
       return Response.json(result);
     }
@@ -245,10 +262,12 @@ function extractContactId(p: Record<string, any>): string | undefined {
 }
 
 /**
- * One instance per contact. Each webhook pushes the alarm back (debounce), and
+ * One instance per contact. Each webhook pushes the reply back (debounce), and
  * the alarm handler runs the agent once the customer has stopped typing.
- * Durable Objects process one event at a time, so a contact never gets two
- * replies generated concurrently.
+ * The same alarm also wakes the contact's next follow-up: "replyAt" and
+ * "followUp.dueAt" are the two things it can be waiting for, and the alarm is
+ * always set to the earliest. Durable Objects process one event at a time, so
+ * a contact never gets two messages generated concurrently.
  */
 export class ConversationAgent extends DurableObject<Env> {
   /** Events gathered during one run, written to the dashboard log at the end. */
@@ -263,7 +282,22 @@ export class ConversationAgent extends DurableObject<Env> {
     await this.ctx.storage.put("contactId", contactId);
     await this.ctx.storage.put("lastWebhookAt", new Date().toISOString());
     const delay = Number(this.env.DEBOUNCE_SECONDS || "20") * 1000;
-    await this.ctx.storage.setAlarm(Date.now() + delay);
+    await this.ctx.storage.put("replyAt", Date.now() + delay);
+    await this.rearm();
+  }
+
+  /** Points the alarm at whichever comes first: the pending reply or the next follow-up. */
+  private async rearm(): Promise<void> {
+    const replyAt = await this.ctx.storage.get<number>("replyAt");
+    const followUp = await this.ctx.storage.get<FollowUpState>("followUp");
+    const next = Math.min(replyAt ?? Infinity, followUp?.dueAt ?? Infinity);
+    if (Number.isFinite(next)) await this.ctx.storage.setAlarm(next);
+    else await this.ctx.storage.deleteAlarm();
+  }
+
+  private async setFollowUp(state: FollowUpState | undefined): Promise<void> {
+    if (state) await this.ctx.storage.put("followUp", state);
+    else await this.ctx.storage.delete("followUp");
   }
 
   /** True the first time it's called on this object; used to process each Square payment once. */
@@ -327,6 +361,9 @@ export class ConversationAgent extends DurableObject<Env> {
           : `Got your ${paid} deposit, thank you.${done}${took} What other day and time works for you? Your deposit is already applied.`;
     }
     await this.ctx.storage.put("deposit", state);
+    // Paid: no more follow-ups. If the time was taken while paying, the deposit credit hands it to the team.
+    await this.setFollowUp(undefined);
+    await this.rearm();
 
     await ghl
       .addNote(contactId, `Deposit paid: ${paid} via Square (payment ${paymentId}). Booked: ${booked.join("; ") || "none"}. Not booked: ${missed.join("; ") || "none"}.`)
@@ -366,25 +403,49 @@ export class ConversationAgent extends DurableObject<Env> {
   }
 
   async status() {
-    const [lastWebhookAt, lastRun, alarm] = await Promise.all([
+    const [lastWebhookAt, lastRun, replyAt, followUp] = await Promise.all([
       this.ctx.storage.get<string>("lastWebhookAt"),
       this.ctx.storage.get("lastRun"),
-      this.ctx.storage.getAlarm(),
+      this.ctx.storage.get<number>("replyAt"),
+      this.ctx.storage.get<FollowUpState>("followUp"),
     ]);
     const deposit = (await this.ctx.storage.get("deposit")) ?? null;
-    return { lastWebhookAt: lastWebhookAt ?? null, pendingReplyAt: alarm ? new Date(alarm).toISOString() : null, lastRun: lastRun ?? null, deposit };
+    return {
+      lastWebhookAt: lastWebhookAt ?? null,
+      pendingReplyAt: replyAt ? new Date(replyAt).toISOString() : null,
+      followUp: followUp ? { ...followUp, nextAt: new Date(followUp.dueAt).toISOString() } : null,
+      lastRun: lastRun ?? null,
+      deposit,
+    };
   }
 
   async alarm(): Promise<void> {
     const contactId = await this.ctx.storage.get<string>("contactId");
     if (!contactId) return;
+    const now = Date.now() + 1000;
+    const replyAt = await this.ctx.storage.get<number>("replyAt");
+    const followUp = await this.ctx.storage.get<FollowUpState>("followUp");
+    // Alarms set before follow-ups existed carry no "replyAt": treat them as a reply.
+    const replyDue = replyAt !== undefined ? replyAt <= now : !followUp;
+    if (replyDue) {
+      await this.ctx.storage.delete("replyAt");
+      await this.run(contactId, () => this.handle(contactId));
+    } else if (followUp && followUp.dueAt <= now) {
+      // If this run throws, try again in an hour instead of looping on a past due time.
+      await this.setFollowUp({ ...followUp, dueAt: nextSendTime(this.env, Date.now() + 3600_000) });
+      await this.run(contactId, () => this.followUp(contactId, followUp));
+    }
+    await this.rearm();
+  }
+
+  private async run(contactId: string, job: () => Promise<string>): Promise<void> {
     let outcome: string;
     this.events = [];
     this.who = { name: "", channel: "" };
     try {
-      outcome = await this.handle(contactId);
+      outcome = await job();
     } catch (err) {
-      // Swallow errors so the runtime doesn't retry the alarm and risk a double reply.
+      // Swallow errors so the runtime doesn't retry the alarm and risk a double message.
       outcome = `error: ${describeError(err)}`;
       console.error(`[${contactId}] agent failed`, err);
       this.track(contactId, "error", describeError(err));
@@ -418,6 +479,8 @@ export class ConversationAgent extends DurableObject<Env> {
     const recent = await ghl.getMessages(conversation.id, 40);
     const latest = recent.find(isChatMessage);
     if (!latest || latest.direction !== "inbound") return skip("latest message is not from the customer");
+    // The customer wrote: any follow-up sequence is over. A new one starts after Julia's answer.
+    await this.setFollowUp(undefined);
     const channel = CHANNELS[latest.messageType ?? ""];
     if (!channel) return skip(`channel ${latest.messageType} not handled`);
     this.who.channel = channel;
@@ -431,6 +494,12 @@ export class ConversationAgent extends DurableObject<Env> {
         unanswered.unshift(m);
       }
       for (const m of unanswered) this.track(contactId, "message_in", m.body!.trim(), { ts: Date.parse(m.dateAdded) });
+    }
+
+    if (isOptOutKeyword(latest.body!)) {
+      await ghl.addTags(contactId, [env.FOLLOWUP_OPTOUT_TAG]).catch((e) => console.error("addTags failed", e));
+      this.track(contactId, "follow_up_stopped", `customer texted "${latest.body!.trim()}"`);
+      return skip("opt-out keyword: no reply, no follow-ups");
     }
 
     const botIds = new Set((await this.ctx.storage.get<string[]>("sentIds")) ?? []);
@@ -449,7 +518,7 @@ export class ConversationAgent extends DurableObject<Env> {
     if (humanReply && Date.now() - Date.parse(humanReply.dateAdded) < pauseMs) {
       // Look again when the pause ends: if the team didn't answer the customer by then, Julia does.
       const retryAt = Date.parse(humanReply.dateAdded) + pauseMs + 5_000;
-      await this.ctx.storage.setAlarm(retryAt);
+      await this.ctx.storage.put("replyAt", retryAt);
       return skip(`a team member replied recently; will answer at ${formatInZone(new Date(retryAt), env.TIMEZONE)} if nobody else does`);
     }
 
@@ -467,6 +536,7 @@ export class ConversationAgent extends DurableObject<Env> {
     }
     if (!result.reply) {
       this.track(contactId, "skip", `no reply needed (${result.actions.join("; ") || "model chose NO_REPLY"})`, { costUsd, calls: result.rounds });
+      if (result.followUp?.on) await this.setFollowUp(deferredSequence(env, channel, result.followUp.on.date, result.followUp.on.reason));
       return log("no reply needed");
     }
 
@@ -489,6 +559,13 @@ export class ConversationAgent extends DurableObject<Env> {
     await this.ctx.storage.put("sentIds", [...botIds].slice(-100));
     await this.ctx.storage.put("sentBodies", [...botBodies].slice(-50));
 
+    // Julia's message is out: if the customer goes quiet now, the follow-up cadence starts from it.
+    const escalated = result.actions.some((a) => a.startsWith("escalated"));
+    if (followUpMode(env) !== "off" && !escalated && !result.followUp?.stop && !tags.includes(env.FOLLOWUP_OPTOUT_TAG.toLowerCase())) {
+      const on = result.followUp?.on;
+      await this.setFollowUp(on ? deferredSequence(env, channel, on.date, on.reason) : startSequence(env, channel));
+    }
+
     // Where the seconds went, from the customer's message to our send.
     const webhookAt = Date.parse((await this.ctx.storage.get<string>("lastWebhookAt")) ?? "");
     const inboundAt = Date.parse(latest.dateAdded);
@@ -496,6 +573,110 @@ export class ConversationAgent extends DurableObject<Env> {
     this.track(contactId, "reply", result.reply, { costUsd, calls: result.rounds, ms: Date.now() - Date.parse(latest.dateAdded) });
     const timing = `ghl_to_webhook=${secs(webhookAt - inboundAt)}s wait=${secs(aiStart - webhookAt)}s ai=${secs(aiMs)}s total=${secs(Date.now() - inboundAt)}s model_calls=${result.rounds}`;
     return log(`sent ${channel} (${timing}) to ${contactName(contact)}: ${result.reply}`);
+  }
+
+  /** The customer went quiet: write the next follow-up, unless something says the sequence is over. */
+  private async followUp(contactId: string, state: FollowUpState): Promise<string> {
+    const env = this.env;
+    const ghl = new GhlClient(env.GHL_TOKEN, env.GHL_LOCATION_ID);
+    const log = (msg: string) => {
+      console.log(`[${contactId}] follow-up: ${msg}`);
+      return `follow-up: ${msg}`;
+    };
+    const end = async (reason: string) => {
+      await this.setFollowUp(undefined);
+      this.track(contactId, "follow_up_stopped", reason);
+      return log(`stopped: ${reason}`);
+    };
+    const mode = followUpMode(env);
+    if (mode === "off") return end("follow-ups are off");
+    if (!inSendWindow(env, Date.now())) {
+      await this.setFollowUp({ ...state, dueAt: nextSendTime(env, Date.now()) });
+      return log("outside the send window, moved to the next opening");
+    }
+
+    const contact = await ghl.getContact(contactId);
+    this.who.name = contactName(contact) || contact.phone || contactId;
+    this.who.channel = state.channel;
+    const tags = (contact.tags ?? []).map((t) => t.toLowerCase());
+    const onlyTag = env.ONLY_TAG?.trim().toLowerCase();
+    if (onlyTag && !tags.includes(onlyTag)) return end(`missing tag "${env.ONLY_TAG}"`);
+    const blocking = [...csv(env.STOP_TAGS), env.FOLLOWUP_OPTOUT_TAG].find((t) => tags.includes(t.toLowerCase()));
+    if (blocking) return end(`has tag "${blocking}"`);
+    if (contact.dnd) return end("contact is on Do Not Disturb");
+
+    const conversation = await ghl.findConversation(contactId);
+    if (!conversation) return end("no conversation");
+    const recent = await ghl.getMessages(conversation.id, 40);
+    const latest = recent.find(isChatMessage);
+    const botIds = new Set((await this.ctx.storage.get<string[]>("sentIds")) ?? []);
+    const botBodies = new Set((await this.ctx.storage.get<string[]>("sentBodies")) ?? []);
+    if (!latest) return end("no messages");
+    if (latest.direction === "inbound") return end("the customer replied");
+    if (!botIds.has(latest.id) && !botBodies.has(latest.body!.trim())) return end("a team member wrote last; the team has it");
+
+    const deposit = (await this.ctx.storage.get<DepositState>("deposit")) ?? {};
+    if (deposit.credit) return end("deposit paid, waiting on a new time; the team has it");
+    if ((await upcomingAppointments(ghl, contactId, env.TIMEZONE)).length > 0) return end("has an upcoming appointment");
+
+    // Instagram only allows business messages within 24 hours of the customer's last message.
+    let channel = state.channel;
+    let smsAfterIg = false;
+    const lastInbound = recent.find((m) => isChatMessage(m) && m.direction === "inbound");
+    if (channel === "IG" && (!lastInbound || Date.now() - Date.parse(lastInbound.dateAdded) > 23 * 3600_000)) {
+      if (!contact.phone) return end("Instagram's 24-hour window closed and there's no phone number for SMS");
+      channel = "SMS";
+      smsAfterIg = !recent.some((m) => isChatMessage(m) && m.messageType === "TYPE_SMS");
+    }
+    this.who.channel = channel;
+
+    const total = followUpOffsets(env).length;
+    const number = state.deferred ? 1 : state.sent + 1;
+    const aiStart = Date.now();
+    const result = await runAgent({
+      env,
+      ghl,
+      contact,
+      channel,
+      transcript: renderTranscript(recent, botIds, env.TIMEZONE),
+      deposit,
+      followUp: {
+        number,
+        total: state.deferred ? 1 : total,
+        silentFor: describeSilence(Date.now() - Date.parse(latest.dateAdded)),
+        smsAfterIg,
+        deferred: state.deferred,
+      },
+    });
+    const costUsd = estimateCost(env.CLAUDE_MODEL || "claude-sonnet-5-5", result.usage);
+    log(`actions=${JSON.stringify(result.actions)} usage=${JSON.stringify(result.usage)}`);
+    if (result.followUp?.stop) return end(result.followUp.stop);
+    if (result.followUp?.on) {
+      await this.setFollowUp(deferredSequence(env, state.channel, result.followUp.on.date, result.followUp.on.reason));
+      this.track(contactId, "skip", `follow-up moved to ${result.followUp.on.date}: ${result.followUp.on.reason}`, { costUsd, calls: result.rounds });
+      return log(`moved to ${result.followUp.on.date}`);
+    }
+    if (!result.reply) {
+      await this.setFollowUp(undefined);
+      this.track(contactId, "follow_up_stopped", "Julia judged the conversation closed (NO_REPLY)", { costUsd, calls: result.rounds });
+      return log("model chose NO_REPLY; sequence ended");
+    }
+
+    const newest = (await ghl.getMessages(conversation.id, 5)).find(isChatMessage);
+    if (newest && newest.id !== latest.id) return log("conversation moved on while generating; skipped");
+
+    const label = `#${number}${state.deferred ? " (date they asked for)" : ""}`;
+    if (mode === "draft") {
+      await ghl.addNote(contactId, `[AI follow-up ${label}, draft, not sent] ${result.reply}`);
+      this.track(contactId, "follow_up", `[draft ${label}, not sent] ${result.reply}`, { costUsd, calls: result.rounds, ms: Date.now() - aiStart });
+    } else {
+      const messageId = await ghl.sendMessage(contactId, channel, result.reply);
+      await this.rememberSent(messageId ?? null, result.reply);
+      this.track(contactId, "follow_up", `${label} ${result.reply}`, { costUsd, calls: result.rounds, ms: Date.now() - aiStart });
+    }
+    const next = advance(env, { ...state, channel });
+    await this.setFollowUp(next);
+    return log(`${mode === "draft" ? "drafted" : `sent ${channel}`} ${label}; ${next ? `next at ${formatInZone(new Date(next.dueAt), env.TIMEZONE)}` : "sequence finished"}`);
   }
 }
 

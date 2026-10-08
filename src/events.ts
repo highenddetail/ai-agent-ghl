@@ -16,7 +16,9 @@ export type EventKind =
   | "rescheduled"
   | "cancelled"
   | "escalated"
-  | "phone_saved";
+  | "phone_saved"
+  | "follow_up"
+  | "follow_up_stopped";
 
 export interface AgentEvent {
   id?: number;
@@ -150,6 +152,7 @@ export function actionKind(action: string): EventKind | undefined {
   if (action.startsWith("cancelled ")) return "cancelled";
   if (action.startsWith("rescheduled ")) return "rescheduled";
   if (action.startsWith("saved phone")) return "phone_saved";
+  if (action.startsWith("follow-ups stopped")) return "follow_up_stopped";
   return undefined;
 }
 

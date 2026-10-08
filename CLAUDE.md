@@ -10,6 +10,7 @@ SMS/Instagram sales agent for High End Detail on GoHighLevel. Cloudflare Worker 
 - `src/agent.ts`: Claude tool loop and tools (pricing, calendars, slots, booking, phone, buying intent, escalation). Tool descriptions live here too.
 - `src/index.ts`: GHL webhook, Square payment webhook (`/webhook/square`), per-contact Durable Object (debounce, tag gating, human-reply pause), `/simulate`, `/diag`.
 - `src/events.ts` + `src/dashboard.ts`: activity log (`EventLog` Durable Object, SQLite) and the live dashboard at `/` (password login with `DASHBOARD_KEY`, cookie session; polls `/api/events`). Health check is `/health`.
+- `src/followups.ts`: follow-up cadence and send window. The per-contact Durable Object in `src/index.ts` runs them (one alarm for both the debounced reply and the next follow-up); Julia's follow-up rules are the FOLLOW-UPS section of `src/prompt.ts`. Switches: `FOLLOWUPS` (`on` / `draft` / `off`), `FOLLOWUP_SCHEDULE`, `FOLLOWUP_HOURS`, `FOLLOWUP_OPTOUT_TAG`.
 - `src/square.ts`: Square deposit payment links and webhook signature check. Deposit = `DEPOSIT_PERCENT` of the booked calendars' `priceCents`.
 - `wrangler.toml` `[vars]`: rollout switches (`ONLY_TAG`, `DRY_RUN`, model, effort, tags, delays). Secrets (`ANTHROPIC_API_KEY`, `GHL_TOKEN`, `WEBHOOK_SECRET`, `SQUARE_ACCESS_TOKEN`, `SQUARE_WEBHOOK_SIGNATURE_KEY`) live only in Cloudflare.
 

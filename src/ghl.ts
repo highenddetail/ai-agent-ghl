@@ -10,6 +10,8 @@ export interface GhlContact {
   email?: string;
   phone?: string;
   tags?: string[];
+  /** Do Not Disturb: GHL sets it when the contact texts STOP. */
+  dnd?: boolean;
 }
 
 export interface GhlMessage {

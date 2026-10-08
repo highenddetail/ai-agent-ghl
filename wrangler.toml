@@ -54,6 +54,14 @@ SQUARE_LOCATION_ID = "032SR1A1XRP3E"
 DEPOSIT_PERCENT = "10"
 DEPOSIT_PENDING_TAG = "deposito-pendiente"
 DEPOSIT_PAID_TAG = "deposito-pagado"
+# Follow-ups when a customer stops answering. "on" = send, "draft" = write them as contact notes only, "off" = disabled.
+FOLLOWUPS = "draft"
+# Delays after Julia's last unanswered message. The sequence stops after the last one.
+FOLLOWUP_SCHEDULE = "1h,1d,2d,7d,30d"
+# Follow-ups only go out Monday to Saturday between these hours (Miami time), never Sundays.
+FOLLOWUP_HOURS = "8-18"
+# Added when the customer asks not to be messaged again; Julia still answers if they write first.
+FOLLOWUP_OPTOUT_TAG = "no-follow-up"
 
 # Secrets (set with `npx wrangler secret put <NAME>`):
 #   ANTHROPIC_API_KEY  - Claude API key
