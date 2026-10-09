@@ -298,7 +298,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
     "",
     depositStatusLine(ctx.deposit, env.TIMEZONE),
     "",
-    ctx.followUp ? followUpInstruction(ctx.followUp) : "Write Julia's next message to the customer (or NO_REPLY).",
+    ctx.followUp ? followUpInstruction(ctx.followUp) : "Write Julia's next message to the customer inside <reply></reply> tags (or <reply>NO_REPLY</reply>).",
   ].join("\n");
 
   const messages: Anthropic.Beta.BetaMessageParam[] = [{ role: "user", content: userPrompt }];
@@ -656,10 +656,17 @@ export function normalizePhone(raw: string): string {
   return "";
 }
 
-function cleanReply(text: string): string | undefined {
-  if (!text || /^NO_REPLY\b/.test(text)) return undefined;
+export function cleanReply(text: string): string | undefined {
+  if (!text) return undefined;
+  // Only the <reply> block goes to the customer; anything around it is the model thinking out loud.
+  // Without tags, fall back to the last paragraph so reasoning written above the message never leaks.
+  const tagged = [...text.matchAll(/<reply>([\s\S]*?)(?:<\/reply>|$)/g)].pop()?.[1];
+  const paragraphs = text.split(/\n\s*\n/);
+  let reply = (tagged ?? paragraphs[paragraphs.length - 1]).trim();
+  if (!reply || /^NO_REPLY\b/.test(reply) || /^NO_REPLY\b/.test(text)) return undefined;
   // House style: never long dashes in customer messages.
-  return text.replace(/\s*—\s*/g, ", ").replace(/^["']|["']$/g, "").trim() || undefined;
+  reply = reply.replace(/\s*—\s*/g, ", ").replace(/^["']|["']$/g, "").trim();
+  return reply || undefined;
 }
 
 export function contactName(c: GhlContact): string {
