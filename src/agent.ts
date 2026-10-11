@@ -228,7 +228,7 @@ const TOOLS: Anthropic.Beta.BetaTool[] = [
   {
     name: "escalate_to_human",
     description:
-      "Hands the conversation to the team and stops automatic replies for this contact. Use for: price negotiation outside what was quoted, upset customers or complaints, requests for a person, or technical questions the pricing reference can't answer.",
+      "Hands the conversation to the team and stops automatic replies for this contact. Use for: price negotiation outside what was quoted, upset customers or complaints, requests for a person, technical questions the pricing reference can't answer, vendors or solicitations (reason starts \"Vendor:\"), and family or friends of the owner (reason starts \"Personal contact:\").",
     strict: true,
     input_schema: {
       type: "object",
@@ -539,7 +539,9 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
           await ctx.ghl.addTags(ctx.contact.id, [env.ESCALATION_TAG]);
           await ctx.ghl.addNote(ctx.contact.id, `AI agent escalated to a human: ${String(input.reason)}`);
         }
-        return "The team has been notified and automatic replies are paused for this contact. Send one short message saying someone from the team will text them shortly.";
+        return /^(vendor|personal contact)\b/i.test(String(input.reason))
+          ? "The team has been notified and automatic replies are paused for this contact. Respond with exactly <reply>NO_REPLY</reply>."
+          : "The team has been notified and automatic replies are paused for this contact. Send one short message saying someone from the team will text them shortly.";
       }
 
       case "stop_follow_ups": {
@@ -667,6 +669,21 @@ export function cleanReply(text: string): string | undefined {
   // House style: never long dashes in customer messages.
   reply = reply.replace(/\s*—\s*/g, ", ").replace(/^["']|["']$/g, "").trim();
   return reply || undefined;
+}
+
+// Phrases that only show up when the model is talking about the conversation instead of to the customer.
+const LEAK_PATTERNS: RegExp[] = [
+  /\bper (the|my) (rules|instructions|guidelines)\b/i,
+  /\b(the|this) customer\b/i,
+  /\b(system prompt|my instructions|house rules)\b/i,
+  /\b(NO_REPLY|get_pricing|escalate_to_human|mark_buying_intent|send_deposit_link|book_appointment|NEPQ)\b/,
+  /\bModule \d+\b/,
+  /<\/?reply>/i,
+];
+
+/** The phrase that marks a reply as reasoning rather than a customer message, if any. */
+export function leakReason(reply: string): string | undefined {
+  return LEAK_PATTERNS.map((p) => reply.match(p)?.[0]).find(Boolean);
 }
 
 export function contactName(c: GhlContact): string {

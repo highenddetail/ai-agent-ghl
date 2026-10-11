@@ -40,7 +40,7 @@ ONLY_TAG = ""
 # "true" = write the proposed reply as a contact note instead of sending it.
 DRY_RUN = "false"
 # Contacts with any of these tags are never answered by the agent.
-STOP_TAGS = "stop bot,ai-escalated"
+STOP_TAGS = "stop bot,ai-escalated,family,personal"
 ESCALATION_TAG = "ai-escalated"
 BUYING_INTENT_TAG = "ai-buying-intent"
 # Wait this long after the last customer message before replying (people often send several texts in a row).

@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { DurableObject } from "cloudflare:workers";
-import { contactName, formatInZone, runAgent, upcomingAppointments } from "./agent";
+import { contactName, formatInZone, leakReason, runAgent, upcomingAppointments } from "./agent";
 import { csv, type Env } from "./env";
 import { GhlClient, GhlError, type GhlMessage } from "./ghl";
 import { CALENDARS } from "./knowledge";
@@ -402,6 +402,18 @@ export class ConversationAgent extends DurableObject<Env> {
     await this.ctx.storage.put("sentBodies", bodies.slice(-50));
   }
 
+  /**
+   * Last line of defence: a reply that reads like the model's reasoning is never sent.
+   * The draft goes into a note for the team and the contact is escalated so a person picks it up.
+   */
+  private async holdLeak(ghl: GhlClient, contactId: string, reply: string, leak: string): Promise<void> {
+    await ghl.addTags(contactId, [this.env.ESCALATION_TAG]).catch((e) => console.error("addTags failed", e));
+    await ghl
+      .addNote(contactId, `[AI reply held, not sent: it read like internal reasoning ("${leak}"). Please answer this customer yourself.]\n${reply}`)
+      .catch((e) => console.error("addNote failed", e));
+    this.track(contactId, "escalated", `reply held (looked like reasoning: "${leak}")`);
+  }
+
   async status() {
     const [lastWebhookAt, lastRun, replyAt, followUp] = await Promise.all([
       this.ctx.storage.get<string>("lastWebhookAt"),
@@ -547,6 +559,12 @@ export class ConversationAgent extends DurableObject<Env> {
       return log("skip send: conversation moved on while generating");
     }
 
+    const leak = leakReason(result.reply);
+    if (leak) {
+      await this.holdLeak(ghl, contactId, result.reply, leak);
+      return log(`held reply that looked like reasoning ("${leak}")`);
+    }
+
     if (env.DRY_RUN === "true") {
       await ghl.addNote(contactId, `[AI draft, not sent] ${result.reply}`);
       this.track(contactId, "reply", `[draft, not sent] ${result.reply}`, { costUsd, calls: result.rounds, ms: aiMs });
@@ -664,6 +682,13 @@ export class ConversationAgent extends DurableObject<Env> {
 
     const newest = (await ghl.getMessages(conversation.id, 5)).find(isChatMessage);
     if (newest && newest.id !== latest.id) return log("conversation moved on while generating; skipped");
+
+    const leak = leakReason(result.reply);
+    if (leak) {
+      await this.setFollowUp(undefined);
+      await this.holdLeak(ghl, contactId, result.reply, leak);
+      return log(`held follow-up that looked like reasoning ("${leak}"); sequence ended`);
+    }
 
     const label = `#${number}${state.deferred ? " (date they asked for)" : ""}`;
     if (mode === "draft") {
