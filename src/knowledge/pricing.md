@@ -153,6 +153,8 @@ PPF is split into vehicle-specific categories in Square. Most full-wrap and part
 
 **Owner ballpark for full-vehicle PPF on big trucks:** a full-size heavy-duty pickup (2500/3500 HD, including duallys) runs roughly $9,000 to $10,000 for the full truck, and about $3,000 for the full front end. Give it as a range, say the exact number is confirmed once we see the truck in person, and invite them to stop by. The job takes several days, so it's a drop-off.
 
+**Owner rule for Full Front End PPF (all vehicle sizes):** the hours in the tables below are shop labor only. Tell the customer it takes about 1.5 days and is an overnight drop-off: drop off in the morning, pick up the next business day in the afternoon (Saturday drop-off means Monday afternoon pickup, closed Sundays). Never promise same-day pickup; some bumpers are much harder than others.
+
 ### PPF — what's included
 
 **PPF Paint Protection Film - Full Vehicle:** LLumar® Platinum PPF is a favorite of auto enthusiasts and purists alike, because it helps defend a new finish against damage from a long list of threats: Flying rocks, road salt, sand, dirt, bugs, oil, and more.
