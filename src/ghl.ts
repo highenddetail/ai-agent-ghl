@@ -159,6 +159,14 @@ export class GhlClient {
     return slots;
   }
 
+  /** Blocks a user's time across all their calendars (e.g. day two of an overnight job). */
+  async createBlockSlot(input: { assignedUserId: string; startTime: string; endTime: string; title: string }): Promise<{ id: string }> {
+    return this.request("POST", "/calendars/events/block-slots", {
+      version: "2021-04-15",
+      body: { locationId: this.locationId, ...input },
+    });
+  }
+
   async createAppointment(input: {
     calendarId: string;
     contactId: string;

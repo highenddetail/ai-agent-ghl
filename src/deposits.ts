@@ -109,7 +109,53 @@ export async function bookSlot(
   await ghl
     .addNote(contact.id, `AI agent booked: ${calendar.name}, ${startTime}. ${description}`)
     .catch((e) => console.error("addNote failed", e));
+  if (isOvernightService(calendar) && calendar.userId) {
+    await blockOvernightTime(ghl, calendar.userId, `${name} - ${calendar.name}`, endTime, env.TIMEZONE).catch((e) =>
+      console.error("blockOvernightTime failed", e),
+    );
+  }
   return { ok: true, id: appointment.id, startTime, endTime };
+}
+
+/** Full Front End PPF takes about 1.5 days: drop off in the morning, pick up the next business day afternoon. */
+export function isOvernightService(calendar: { name: string }): boolean {
+  return /^Full Front End PPF\b/i.test(calendar.name);
+}
+
+const CLOSE_HOUR = { weekday: "17:00", saturday: "15:00" };
+
+/**
+ * Blocks the rest of the drop-off day after the appointment ends, and the next business
+ * morning (closed Sundays), so nothing else gets booked while the car is still in the shop.
+ */
+async function blockOvernightTime(ghl: GhlClient, userId: string, title: string, endTime: string, timeZone: string) {
+  const day = endTime.slice(0, 10);
+  const weekday = new Date(`${day}T12:00:00Z`).getUTCDay();
+  const close = zonedIso(day, weekday === 6 ? CLOSE_HOUR.saturday : CLOSE_HOUR.weekday, timeZone);
+  if (Date.parse(close) > Date.parse(endTime)) {
+    await ghl.createBlockSlot({ assignedUserId: userId, startTime: endTime, endTime: close, title: `${title} (car in shop)` });
+  }
+  let next = new Date(`${day}T12:00:00Z`);
+  do next = new Date(next.getTime() + 86_400_000);
+  while (next.getUTCDay() === 0);
+  const nextDay = next.toISOString().slice(0, 10);
+  await ghl.createBlockSlot({
+    assignedUserId: userId,
+    startTime: zonedIso(nextDay, "09:00", timeZone),
+    endTime: zonedIso(nextDay, "13:00", timeZone),
+    title: `${title} (day 2)`,
+  });
+}
+
+/** "2026-10-26" + "09:00" in America/New_York -> "2026-10-26T09:00:00-04:00" (DST-aware). */
+export function zonedIso(day: string, hhmm: string, timeZone: string): string {
+  const probe = new Date(`${day}T${hhmm}:00Z`);
+  const name = new Intl.DateTimeFormat("en-US", { timeZone, timeZoneName: "longOffset" })
+    .formatToParts(probe)
+    .find((p) => p.type === "timeZoneName")?.value;
+  const m = /GMT([+-]\d{2}):?(\d{2})?/.exec(name ?? "");
+  const offset = m ? `${m[1]}:${m[2] ?? "00"}` : "+00:00";
+  return `${day}T${hhmm}:00${offset}`;
 }
 
 export function contactDisplayName(c: GhlContact): string {

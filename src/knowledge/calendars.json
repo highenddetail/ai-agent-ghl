@@ -266,7 +266,7 @@
   {
     "id": "rtnbh3pGr3j0HaRbdZtW",
     "name": "Full Front End PPF - Coupe (Standard)",
-    "durationMinutes": 300,
+    "durationMinutes": 360,
     "userId": "FohbxsMcPFSEC6AdBfOc",
     "priceCents": 180000,
     "squareVariationId": "OKISYP7A6YY4GXMD6VE5D3EL"
@@ -282,7 +282,7 @@
   {
     "id": "QQ66V1LJRhhPACIPSZ2k",
     "name": "Full Front End PPF - Sedan (Standard)",
-    "durationMinutes": 300,
+    "durationMinutes": 360,
     "userId": "FohbxsMcPFSEC6AdBfOc",
     "priceCents": 200000,
     "squareVariationId": "3B2F62IMIVWQK3THXDUCU2H6"
@@ -290,7 +290,7 @@
   {
     "id": "Ij1PV2kfgX96cyTgNoxk",
     "name": "Full Front End PPF - Truck/SUV (Extensive)",
-    "durationMinutes": 420,
+    "durationMinutes": 360,
     "userId": "FohbxsMcPFSEC6AdBfOc",
     "priceCents": 300000,
     "squareVariationId": "QW4NAYQTGF7FKHGWUBAIGK2I"
@@ -306,7 +306,7 @@
   {
     "id": "46C6dujtmEsSYXTvpDgF",
     "name": "Full Front End PPF - XL SUV/Van (Extensive)",
-    "durationMinutes": 480,
+    "durationMinutes": 360,
     "userId": "FohbxsMcPFSEC6AdBfOc",
     "priceCents": 320000,
     "squareVariationId": "TTD7N6NWLZTQ3DA7RUQGUGC7"
@@ -314,7 +314,7 @@
   {
     "id": "mKRwwFSbHOVsBSWSn0Da",
     "name": "Full Front End PPF - XL SUV/Van (Standard)",
-    "durationMinutes": 420,
+    "durationMinutes": 360,
     "userId": "FohbxsMcPFSEC6AdBfOc",
     "priceCents": 250000,
     "squareVariationId": "7CWR3PQKTTRHV4C4AQSZCQDZ"
