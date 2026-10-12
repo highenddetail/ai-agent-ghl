@@ -24,6 +24,8 @@ export interface AgentContext {
   /** Undefined in simulation: tools that write to GHL become no-ops. */
   contact?: GhlContact;
   channel: "SMS" | "IG";
+  /** Set when the customer wrote through the website chat: "sms" = we answer by text to their phone, "chat" = no phone, we answer in the chat. */
+  webchat?: "sms" | "chat";
   /** Conversation rendered as plain text, oldest first. */
   transcript: string;
   /** Deposit link awaiting payment, or a paid deposit still to be booked. */
@@ -288,7 +290,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
   const now = new Date();
   const userPrompt = [
     `Current date and time: ${formatInZone(now, env.TIMEZONE)} (${env.TIMEZONE}). Today is ${isoDateInZone(now, env.TIMEZONE)}.`,
-    `Channel: ${ctx.channel === "SMS" ? "SMS text message" : "Instagram DM"}`,
+    `Channel: ${channelLine(ctx)}`,
     ctx.contact ? `Customer name on file: ${contactName(ctx.contact) || "unknown"}` : "",
     `Customer phone on file: ${phoneOnFile() ? "yes" : "no"}`,
     "",
@@ -759,4 +761,14 @@ export function formatInZone(d: Date, timeZone: string): string {
 
 function isoDateInZone(d: Date, timeZone: string): string {
   return d.toLocaleDateString("en-CA", { timeZone }); // en-CA formats as YYYY-MM-DD
+}
+
+function channelLine(ctx: AgentContext): string {
+  if (ctx.webchat === "sms") {
+    return "The customer wrote through the website chat and left their phone, so your reply goes to them by SMS text. In your first text, mention they reached out on our website so they know who is texting.";
+  }
+  if (ctx.webchat === "chat") {
+    return "Website chat, no phone on file: your reply shows in the chat on our website. Answer their question, then ask for their mobile number so we can text them the details, since they may close the page.";
+  }
+  return ctx.channel === "SMS" ? "SMS text message" : "Instagram DM";
 }

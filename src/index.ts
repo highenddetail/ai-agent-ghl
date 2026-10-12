@@ -493,8 +493,11 @@ export class ConversationAgent extends DurableObject<Env> {
     if (!latest || latest.direction !== "inbound") return skip("latest message is not from the customer");
     // The customer wrote: any follow-up sequence is over. A new one starts after Julia's answer.
     await this.setFollowUp(undefined);
-    const channel = CHANNELS[latest.messageType ?? ""];
+    // Website chat: answer by text when they left a phone (they often close the page), else in the chat.
+    const webchat = latest.messageType === "TYPE_WEBCHAT" ? (contact.phone ? "sms" : "chat") : undefined;
+    const channel = webchat ? "SMS" : CHANNELS[latest.messageType ?? ""];
     if (!channel) return skip(`channel ${latest.messageType} not handled`);
+    const sendType = webchat === "chat" ? "Live_Chat" : channel;
     this.who.channel = channel;
     if ((await this.ctx.storage.get<string>("lastInboundLogged")) !== latest.id) {
       await this.ctx.storage.put("lastInboundLogged", latest.id);
@@ -537,7 +540,7 @@ export class ConversationAgent extends DurableObject<Env> {
     const transcript = renderTranscript(recent, botIds, env.TIMEZONE);
     const aiStart = Date.now();
     const deposit = (await this.ctx.storage.get<DepositState>("deposit")) ?? {};
-    const result = await runAgent({ env, ghl, contact, channel, transcript, deposit });
+    const result = await runAgent({ env, ghl, contact, channel, webchat, transcript, deposit });
     await this.ctx.storage.put("deposit", result.deposit);
     const aiMs = Date.now() - aiStart;
     log(`actions=${JSON.stringify(result.actions)} usage=${JSON.stringify(result.usage)}`);
@@ -571,7 +574,7 @@ export class ConversationAgent extends DurableObject<Env> {
       return log(`dry run note: ${result.reply}`);
     }
 
-    const messageId = await ghl.sendMessage(contactId, channel, result.reply);
+    const messageId = await ghl.sendMessage(contactId, sendType, result.reply);
     if (messageId) botIds.add(messageId);
     botBodies.add(result.reply.trim());
     await this.ctx.storage.put("sentIds", [...botIds].slice(-100));
@@ -579,7 +582,7 @@ export class ConversationAgent extends DurableObject<Env> {
 
     // Julia's message is out: if the customer goes quiet now, the follow-up cadence starts from it.
     const escalated = result.actions.some((a) => a.startsWith("escalated"));
-    if (followUpMode(env) !== "off" && !escalated && !result.followUp?.stop && !tags.includes(env.FOLLOWUP_OPTOUT_TAG.toLowerCase())) {
+    if (webchat !== "chat" && followUpMode(env) !== "off" && !escalated && !result.followUp?.stop && !tags.includes(env.FOLLOWUP_OPTOUT_TAG.toLowerCase())) {
       const on = result.followUp?.on;
       await this.setFollowUp(on ? deferredSequence(env, channel, on.date, on.reason) : startSequence(env, channel));
     }

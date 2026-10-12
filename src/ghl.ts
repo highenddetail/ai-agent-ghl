@@ -137,7 +137,7 @@ export class GhlClient {
     return data.messages.messages;
   }
 
-  async sendMessage(contactId: string, type: "SMS" | "IG", message: string): Promise<string | undefined> {
+  async sendMessage(contactId: string, type: "SMS" | "IG" | "Live_Chat", message: string): Promise<string | undefined> {
     const data = await this.request<{ messageId?: string }>("POST", "/conversations/messages", {
       version: "2021-04-15",
       body: { type, contactId, message },
