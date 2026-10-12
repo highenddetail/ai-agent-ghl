@@ -22,6 +22,7 @@ Cloudflare Workers Builds deploys automatically on every push to `claude/gohighl
 
 - No long dashes ("—") in anything sent to customers.
 - Never write "following up", "checking in", "checking back", "touching base" or "circling back" to a customer (Claude and Julia). It reads as desperate. Open with their vehicle, their problem or one useful question.
+- Texts must be easy to read on a phone: never one big paragraph. Put each price or option on its own line with a blank line between, or send one quote per message (Claude and Julia).
 - Never invent prices; every price, duration and package name comes from `get_pricing`.
 - The only booking link is the service-menu link in `BOOKING_LINK`.
 - Never confirm an appointment unless `book_appointment` returned "Booked."
