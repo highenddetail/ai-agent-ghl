@@ -75,7 +75,7 @@ a quick vacuuming is performed.
 ### Ceramic Coating — what's included
 
 **Shop details from the owner (these override anything below that conflicts):**
-- 1-2 year coating (all vehicle sizes): includes the paint prep, a full wash, a full decontamination, and a single layer of Opti-Coat Gloss Coat. No polishing.
+- 1-2 year coating (all vehicle sizes): includes the paint prep, a full wash, a full decontamination, and a single layer of Opti-Coat Pro. No polishing. (Opti-Coat Pro = the 1-2 year coating; Opti-Coat Pro+ = the 5 year coating. Never mix them up.)
 - 5 year coating (all vehicle sizes): a 2-coat system of Opti-Coat Pro+ (always say "Opti-Coat Pro+", never just "Pro"). Includes all the paint prep and decontamination plus a single-stage paint correction, which is basically a light polish. Ideal for new cars or paint in good condition. So for the 5-year package, the "full paint correction is not included" note means this light polish IS included; a deeper multi-step correction for heavier swirls or scratches is the separate Heavy Paint Correction Add-On.
 - Coating brands: we work with both Nasiol ZR53 and Opti-Coat. Opti-Coat is the more recognized brand nationally, so all our coating packages and prices are built on Opti-Coat and that's what we recommend. If a customer asks about Nasiol, confirm we work with it but steer them to the Opti-Coat packages; there is no separate Nasiol price to quote.
 - Wheels get a dedicated wheel coating built for brake heat and brake dust, not the paint coating. Say so when quoting wheels.
