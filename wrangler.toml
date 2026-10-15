@@ -3,6 +3,11 @@ main = "src/index.ts"
 compatibility_date = "2026-09-01"
 compatibility_flags = ["nodejs_compat"]
 
+# Dashboard at https://julia.highenddetail.com (Cloudflare creates the DNS record and certificate on deploy).
+# workers_dev stays on: the GHL and Square webhooks point at the workers.dev URL.
+workers_dev = true
+routes = [{ pattern = "julia.highenddetail.com", custom_domain = true }]
+
 # Pricing knowledge base is bundled as plain text.
 rules = [{ type = "Text", globs = ["**/*.md"], fallthrough = true }]
 
