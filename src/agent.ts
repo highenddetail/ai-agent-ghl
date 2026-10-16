@@ -149,6 +149,21 @@ const TOOLS: Anthropic.Beta.BetaTool[] = [
     },
   },
   {
+    name: "save_contact_name",
+    description:
+      "Saves the customer's own name to their contact record so reminders and texts greet them correctly. Use when the customer tells you their name (or signs a message with it) and no name is on file. Never pass a vehicle, business, nickname for the car, or phone number. Returns an error if the name doesn't look like a person's name or one is already on file.",
+    strict: true,
+    input_schema: {
+      type: "object",
+      properties: {
+        first_name: { type: "string", description: "The customer's first name, as they wrote it." },
+        last_name: { type: "string", description: "Their last name if they gave it, otherwise an empty string." },
+      },
+      required: ["first_name", "last_name"],
+      additionalProperties: false,
+    },
+  },
+  {
     name: "mark_buying_intent",
     description:
       "Flags the lead for the team. Call when the customer clearly expresses intent to move forward with a service: agreeing to proceed, asking how to pay, asking when they can bring their vehicle in, confirming they want to book, or similar clear buying signals. Do not call on price questions alone, only on actual intent to advance.",
@@ -283,6 +298,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
   let followUpResult: AgentResult["followUp"];
 
   let savedPhone = ctx.contact?.phone ?? "";
+  let savedName = ctx.contact?.firstName?.trim() ?? "";
   const deposit: DepositState = structuredClone(ctx.deposit ?? {});
   const depositsOn = Boolean(env.SQUARE_ACCESS_TOKEN);
   const phoneOnFile = () => Boolean(savedPhone);
@@ -291,7 +307,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
   const userPrompt = [
     `Current date and time: ${formatInZone(now, env.TIMEZONE)} (${env.TIMEZONE}). Today is ${isoDateInZone(now, env.TIMEZONE)}.`,
     `Channel: ${channelLine(ctx)}`,
-    ctx.contact ? `Customer name on file: ${contactName(ctx.contact) || "unknown"}` : "",
+    ctx.contact ? `Customer name on file: ${contactName(ctx.contact) || "unknown"}${savedName ? "" : " (no first name saved)"}` : "",
     `Customer phone on file: ${phoneOnFile() ? "yes" : "no"}`,
     "",
     "<conversation>",
@@ -379,6 +395,19 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
         savedPhone = phone;
         actions.push(`saved phone ${phone}`);
         return `Saved ${phone}.`;
+      }
+
+      case "save_contact_name": {
+        if (savedName) return `Not saved: the name on file is already "${savedName}".`;
+        const first = cleanPersonName(String(input.first_name ?? ""));
+        const last = cleanPersonName(String(input.last_name ?? ""));
+        if (!first) return "Not saved: that doesn't look like a person's first name. Only save the customer's own name, never a vehicle or business.";
+        const fields: { firstName: string; lastName?: string } = { firstName: first };
+        if (last) fields.lastName = last;
+        if (ctx.contact) await ctx.ghl.updateContact(ctx.contact.id, fields);
+        savedName = [first, last].filter(Boolean).join(" ");
+        actions.push(`saved name ${savedName}`);
+        return `Saved ${savedName}.`;
       }
 
       case "mark_buying_intent": {
@@ -690,6 +719,22 @@ export function leakReason(reply: string): string | undefined {
 
 export function contactName(c: GhlContact): string {
   return c.contactName || [c.firstName, c.lastName].filter(Boolean).join(" ");
+}
+
+// Car makes that customers sometimes give in place of a name ("it's for the Porsche").
+const VEHICLE_WORDS = new Set(
+  "acura audi bentley bmw buick cadillac chevy chevrolet chrysler dodge ferrari fiat ford genesis gmc honda hummer hyundai infiniti jaguar jeep kia lambo lamborghini land lexus lincoln lucid maserati mazda mclaren mercedes benz mini mitsubishi nissan porsche ram rivian rolls subaru suzuki tesla toyota volkswagen vw volvo truck suv car sedan coupe".split(" "),
+);
+
+/** A tidy person's name, or "" if the text doesn't look like one (digits, vehicle words, too long). */
+export function cleanPersonName(raw: string): string {
+  const name = raw.trim().replace(/\s+/g, " ");
+  if (!name || name.length > 40 || !/^[\p{L}][\p{L}' .-]*$/u.test(name)) return "";
+  if (name.toLowerCase().split(/[\s-]+/).some((w) => VEHICLE_WORDS.has(w))) return "";
+  return name
+    .split(" ")
+    .map((w) => (w === w.toLowerCase() || w === w.toUpperCase() ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w))
+    .join(" ");
 }
 
 

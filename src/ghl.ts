@@ -90,7 +90,7 @@ export class GhlClient {
     return data.contact;
   }
 
-  async updateContact(contactId: string, fields: { phone?: string }): Promise<void> {
+  async updateContact(contactId: string, fields: { phone?: string; firstName?: string; lastName?: string }): Promise<void> {
     await this.request("PUT", `/contacts/${contactId}`, { body: fields });
   }
 
