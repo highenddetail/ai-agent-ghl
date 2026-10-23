@@ -173,7 +173,7 @@ One of the best features of gloss finish LLumar Platinum PPF is its self-healing
 
 ### PPF - Coupe — what's included
 
-**Full Front End PPF - Coupe:** LLumar Valor paint protection film for a coupe's full front end — full hood, full front fenders, full front bumper, and mirrors. Valor is LLumar's flagship 2-in-1 film, combining self-healing PPF with a ceramic-style Tetrashield™ topcoat: an ultra-glossy, super hydrophobic finish that sheds water and dirt on its own. Minor scratches self-heal with heat from the sun or engine, and the film resists yellowing, staining, and up to 25% more environmental damage (bird droppings, acid rain, tree sap) than standard PPF. Backed by LLumar's 12-year manufacturer warranty. Vehicle is fully decontaminated and paint-corrected as needed before install. Final price depends on panel complexity and prep required.
+**Full Front End PPF - Coupe:** LLumar Valor paint protection film for a coupe's full front end — full hood, full front fenders, full front bumper, and mirrors. Valor is LLumar's flagship 2-in-1 film, combining self-healing PPF with a ceramic-style Tetrashield™ topcoat: an ultra-glossy, super hydrophobic finish that sheds water and dirt on its own. Minor scratches self-heal with heat from the sun or engine, and the film resists yellowing, staining, and up to 25% more environmental damage (bird droppings, acid rain, tree sap) than standard PPF. Backed by LLumar's 12-year manufacturer warranty. Vehicle is fully decontaminated and paint-corrected as needed before install. Final price depends on panel complexity and prep required. Standard covers the painted front-end panels above; Extensive adds the grill and the black accents on the bumper.
 
 ## PPF - Sedan
 
@@ -184,7 +184,7 @@ One of the best features of gloss finish LLumar Platinum PPF is its self-healing
 
 ### PPF - Sedan — what's included
 
-**Full Front End PPF - Sedan:** LLumar Valor paint protection film for a sedan's full front end — full hood, full front fenders, full front bumper, and mirrors. Valor is LLumar's flagship 2-in-1 film, combining self-healing PPF with a ceramic-style Tetrashield™ topcoat: an ultra-glossy, super hydrophobic finish that sheds water and dirt on its own. Minor scratches self-heal with heat from the sun or engine, and the film resists yellowing, staining, and up to 25% more environmental damage (bird droppings, acid rain, tree sap) than standard PPF. Backed by LLumar's 12-year manufacturer warranty. Vehicle is fully decontaminated and paint-corrected as needed before install. Final price depends on panel complexity and prep required.
+**Full Front End PPF - Sedan:** LLumar Valor paint protection film for a sedan's full front end — full hood, full front fenders, full front bumper, and mirrors. Valor is LLumar's flagship 2-in-1 film, combining self-healing PPF with a ceramic-style Tetrashield™ topcoat: an ultra-glossy, super hydrophobic finish that sheds water and dirt on its own. Minor scratches self-heal with heat from the sun or engine, and the film resists yellowing, staining, and up to 25% more environmental damage (bird droppings, acid rain, tree sap) than standard PPF. Backed by LLumar's 12-year manufacturer warranty. Vehicle is fully decontaminated and paint-corrected as needed before install. Final price depends on panel complexity and prep required. Standard covers the painted front-end panels above; Extensive adds the grill and the black accents on the bumper.
 
 ## PPF - Truck/SUV
 
