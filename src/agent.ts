@@ -14,6 +14,11 @@ import {
   type DepositState,
 } from "./deposits";
 
+/** Full Front End PPF is priced by the square foot by the owner, never from the flat Square price. */
+const isCustomPpf = (name: string) => /full front end ppf/i.test(name);
+const CUSTOM_PPF_NOTE =
+  'PPF is priced by the owner by the square foot from the car\'s pattern. Do not quote a price, offer days or book it. Get the year, make and model and the coverage they want, call escalate_to_human with a reason starting "PPF quote:", and tell the customer Josue will follow up shortly with the exact price.';
+
 const MAX_TURNS = 10;
 // Models that accept the server-side refusal fallback (`fallbacks: "default"`).
 const FALLBACK_MODELS = new Set(["claude-opus-5-5", "claude-opus-5", "claude-fable-5-1", "claude-sonnet-5-5"]);
@@ -361,6 +366,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
           return "NOT BOOKED: on Instagram you must get the customer's phone number first. Ask for it, save it with save_contact_phone, then book.";
         }
         const usesCredit = Boolean(deposit.credit);
+        if (isCustomPpf(calendar.name) && !usesCredit) return `NOT BOOKED: ${CUSTOM_PPF_NOTE}`;
         if (depositsOn && calendar.priceCents && !usesCredit) {
           return "NOT BOOKED: this service needs the deposit first. Call send_deposit_link with the slot(s) the customer confirmed; the appointment is booked automatically once they pay.";
         }
@@ -439,6 +445,7 @@ export async function runAgent(ctx: AgentContext): Promise<AgentResult> {
         for (const r of raw) {
           const cal = getCalendar(String(r.calendar_id));
           if (!cal) return "NO LINK: unknown calendar_id. Use find_booking_calendar first.";
+          if (isCustomPpf(cal.name)) return `NO LINK: ${CUSTOM_PPF_NOTE}`;
           if (!cal.priceCents) {
             return `NO LINK: ${cal.name} has no fixed price (custom quote), so no deposit link. Book it directly with book_appointment and don't mention a deposit.`;
           }

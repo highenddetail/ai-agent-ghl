@@ -155,6 +155,8 @@ PPF is split into vehicle-specific categories in Square. Most full-wrap and part
 
 **Owner ballpark for full-vehicle PPF on big trucks:** a full-size heavy-duty pickup (2500/3500 HD, including duallys) runs roughly $9,000 to $10,000 for the full truck, and about $3,000 for the full front end. Give it as a range, say the exact number is confirmed once we see the truck in person, and invite them to stop by. The job takes several days, so it's a drop-off.
 
+**Owner rule for PPF pricing (all vehicles, all coverage):** PPF is priced by the square foot ($35 per sq ft of film) from the cut-software pattern for the customer's exact year, make and model, so there is no flat price for a full front end, a hood, a bumper, fenders or mirrors. Never state a PPF price, even a ballpark, except the big-truck range above. Ask for the year, make and model, say you'll get the exact number after pulling the pattern for their car, and escalate to the owner. Headlight PPF and PPF removal lines below are separate.
+
 **Owner rule for Full Front End PPF (all vehicle sizes):** the hours in the tables below are shop labor only. Tell the customer it takes about 1.5 days and is an overnight drop-off: drop off in the morning, pick up the next business day in the afternoon (Saturday drop-off means Monday afternoon pickup, closed Sundays). Never promise same-day pickup; some bumpers are much harder than others.
 
 ### PPF — what's included
@@ -168,45 +170,45 @@ One of the best features of gloss finish LLumar Platinum PPF is its self-healing
 
 | Service | Variation | Price | Est. Duration |
 |---|---|---|---|
-| Full Front End PPF - Coupe | Standard | $1,800.00 | 5.0h |
-| Full Front End PPF - Coupe | Extensive | $2,200.00 | 6.0h |
+| Full Front End PPF - Coupe | Standard | Custom quote | 5.0h |
+| Full Front End PPF - Coupe | Extensive | Custom quote | 6.0h |
 
 ### PPF - Coupe — what's included
 
-**Full Front End PPF - Coupe:** LLumar Valor paint protection film for a coupe's full front end — full hood, full front fenders, full front bumper, and mirrors. Valor is LLumar's flagship 2-in-1 film, combining self-healing PPF with a ceramic-style Tetrashield™ topcoat: an ultra-glossy, super hydrophobic finish that sheds water and dirt on its own. Minor scratches self-heal with heat from the sun or engine, and the film resists yellowing, staining, and up to 25% more environmental damage (bird droppings, acid rain, tree sap) than standard PPF. Backed by LLumar's 12-year manufacturer warranty. Vehicle is fully decontaminated and paint-corrected as needed before install. Final price depends on panel complexity and prep required.
+**Full Front End PPF - Coupe:** LLumar Valor paint protection film for a coupe's full front end — full hood, full front fenders, full front bumper, and mirrors. Valor is LLumar's flagship 2-in-1 film, combining self-healing PPF with a ceramic-style Tetrashield™ topcoat: an ultra-glossy, super hydrophobic finish that sheds water and dirt on its own. Minor scratches self-heal with heat from the sun or engine, and the film resists yellowing, staining, and up to 25% more environmental damage (bird droppings, acid rain, tree sap) than standard PPF. Backed by LLumar's 12-year manufacturer warranty. Vehicle is fully decontaminated and paint-corrected as needed before install. Final price depends on panel complexity and prep required. Standard covers the painted front-end panels above; Extensive adds the grill and the black accents on the bumper.
 
 ## PPF - Sedan
 
 | Service | Variation | Price | Est. Duration |
 |---|---|---|---|
-| Full Front End PPF - Sedan | Standard | $2,000.00 | 5.0h |
-| Full Front End PPF - Sedan | Extensive | $2,300.00 | 6.0h |
+| Full Front End PPF - Sedan | Standard | Custom quote | 5.0h |
+| Full Front End PPF - Sedan | Extensive | Custom quote | 6.0h |
 
 ### PPF - Sedan — what's included
 
-**Full Front End PPF - Sedan:** LLumar Valor paint protection film for a sedan's full front end — full hood, full front fenders, full front bumper, and mirrors. Valor is LLumar's flagship 2-in-1 film, combining self-healing PPF with a ceramic-style Tetrashield™ topcoat: an ultra-glossy, super hydrophobic finish that sheds water and dirt on its own. Minor scratches self-heal with heat from the sun or engine, and the film resists yellowing, staining, and up to 25% more environmental damage (bird droppings, acid rain, tree sap) than standard PPF. Backed by LLumar's 12-year manufacturer warranty. Vehicle is fully decontaminated and paint-corrected as needed before install. Final price depends on panel complexity and prep required.
+**Full Front End PPF - Sedan:** LLumar Valor paint protection film for a sedan's full front end — full hood, full front fenders, full front bumper, and mirrors. Valor is LLumar's flagship 2-in-1 film, combining self-healing PPF with a ceramic-style Tetrashield™ topcoat: an ultra-glossy, super hydrophobic finish that sheds water and dirt on its own. Minor scratches self-heal with heat from the sun or engine, and the film resists yellowing, staining, and up to 25% more environmental damage (bird droppings, acid rain, tree sap) than standard PPF. Backed by LLumar's 12-year manufacturer warranty. Vehicle is fully decontaminated and paint-corrected as needed before install. Final price depends on panel complexity and prep required. Standard covers the painted front-end panels above; Extensive adds the grill and the black accents on the bumper.
 
 ## PPF - Truck/SUV
 
 | Service | Variation | Price | Est. Duration |
 |---|---|---|---|
-| Full Front End PPF - Truck/SUV | Standard | $2,500.00 | 6.0h |
-| Full Front End PPF - Truck/SUV | Extensive | $3,000.00 | 7.0h |
+| Full Front End PPF - Truck/SUV | Standard | Custom quote | 6.0h |
+| Full Front End PPF - Truck/SUV | Extensive | Custom quote | 7.0h |
 
 ### PPF - Truck/SUV — what's included
 
-**Full Front End PPF - Truck/SUV:** LLumar Valor paint protection film for a truck or SUV's full front end — full hood, full front fenders, full front bumper, and mirrors. Larger panel area than a car means more film and more labor. Valor is LLumar's flagship 2-in-1 film, combining self-healing PPF with a ceramic-style Tetrashield™ topcoat: an ultra-glossy, super hydrophobic finish that sheds water and dirt on its own. Minor scratches self-heal with heat from the sun or engine, and the film resists yellowing, staining, and up to 25% more environmental damage (bird droppings, acid rain, tree sap) than standard PPF. Backed by LLumar's 12-year manufacturer warranty. Vehicle is fully decontaminated and paint-corrected as needed before install. Final price depends on panel complexity and prep required.
+**Full Front End PPF - Truck/SUV:** LLumar Valor paint protection film for a truck or SUV's full front end — full hood, full front fenders, full front bumper, and mirrors. Larger panel area than a car means more film and more labor. Valor is LLumar's flagship 2-in-1 film, combining self-healing PPF with a ceramic-style Tetrashield™ topcoat: an ultra-glossy, super hydrophobic finish that sheds water and dirt on its own. Minor scratches self-heal with heat from the sun or engine, and the film resists yellowing, staining, and up to 25% more environmental damage (bird droppings, acid rain, tree sap) than standard PPF. Backed by LLumar's 12-year manufacturer warranty. Vehicle is fully decontaminated and paint-corrected as needed before install. Final price depends on panel complexity and prep required. Standard covers the painted front-end panels above; Extensive adds the grill and the black accents on the bumper.
 
 ## PPF - XL SUV/Van
 
 | Service | Variation | Price | Est. Duration |
 |---|---|---|---|
-| Full Front End PPF - XL SUV/Van | Standard | $2,500.00 | 7.0h |
-| Full Front End PPF - XL SUV/Van | Extensive | $3,200.00 | 8.0h |
+| Full Front End PPF - XL SUV/Van | Standard | Custom quote | 7.0h |
+| Full Front End PPF - XL SUV/Van | Extensive | Custom quote | 8.0h |
 
 ### PPF - XL SUV/Van — what's included
 
-**Full Front End PPF - XL SUV/Van:** LLumar Valor paint protection film for a full-size SUV or van's full front end — think Suburban, Tahoe, Sienna, or a cargo van — full hood, full front fenders, full front bumper, and mirrors, on the largest and most complex front-end panels we cover. Valor is LLumar's flagship 2-in-1 film, combining self-healing PPF with a ceramic-style Tetrashield™ topcoat: an ultra-glossy, super hydrophobic finish that sheds water and dirt on its own. Minor scratches self-heal with heat from the sun or engine, and the film resists yellowing, staining, and up to 25% more environmental damage (bird droppings, acid rain, tree sap) than standard PPF. Backed by LLumar's 12-year manufacturer warranty. Vehicle is fully decontaminated and paint-corrected as needed before install. Final price depends on panel complexity and prep required.
+**Full Front End PPF - XL SUV/Van:** LLumar Valor paint protection film for a full-size SUV or van's full front end — think Suburban, Tahoe, Sienna, or a cargo van — full hood, full front fenders, full front bumper, and mirrors, on the largest and most complex front-end panels we cover. Valor is LLumar's flagship 2-in-1 film, combining self-healing PPF with a ceramic-style Tetrashield™ topcoat: an ultra-glossy, super hydrophobic finish that sheds water and dirt on its own. Minor scratches self-heal with heat from the sun or engine, and the film resists yellowing, staining, and up to 25% more environmental damage (bird droppings, acid rain, tree sap) than standard PPF. Backed by LLumar's 12-year manufacturer warranty. Vehicle is fully decontaminated and paint-corrected as needed before install. Final price depends on panel complexity and prep required. Standard covers the painted front-end panels above; Extensive adds the grill and the black accents on the bumper.
 
 ## PPF - Removal
 
